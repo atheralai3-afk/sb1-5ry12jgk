@@ -84,11 +84,17 @@
     <div class="topbar"><button class="icon-btn" id="setupBack" aria-label="Back">←</button><div class="round">Puffer Panic</div><div></div></div>
     <div class="setup-hero"><svg viewBox="0 0 200 200" class="hero-puffer"><use href="#pufferBig"/></svg>
       <div><h2>Pass the puffer.</h2><p>Name an answer that fits the category to pass it on. No repeats. If it pops while you hold it, you lose a heart. Rare answers fill your meter for a bonus heart. Last one floating wins.</p></div></div>
-    <div class="seg big" id="pmode"><button data-v="bots" class="on">vs Bots</button><button data-v="local">Pass &amp; Play</button></div>
+    <div class="seg big" id="pmode"><button data-v="bots" class="on">vs Bots</button><button data-v="local">Pass &amp; Play</button><button data-v="online">🌐 Online</button></div>
+    <label class="fld" id="nameFld">Your name<input id="youName" maxlength="14" placeholder="You"></label>
+    <div class="pmsg" id="pMsgSetup"></div>
     <div id="botsCfg">
-      <label class="fld">Your name<input id="youName" maxlength="14" placeholder="You"></label>
       <div class="row2"><span>Bots</span><div class="seg" id="botCount"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3" class="on">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="7">7</button></div></div>
       <div class="row2"><span>Bot level</span><div class="seg" id="botLevel"><button data-v="easy">Easy</button><button data-v="normal" class="on">Normal</button><button data-v="hard">Hard</button></div></div>
+    </div>
+    <div id="onlineCfg" hidden>
+      <p class="online-note">Play together on different phones. One person creates a room, everyone else joins with the 4-letter code.</p>
+      <button class="cta blue" id="createRoom">＋ Create a room</button>
+      <form id="joinForm" autocomplete="off" class="join-form"><input id="joinCode" maxlength="4" placeholder="CODE" autocapitalize="characters" spellcheck="false"><button class="go" type="submit">Join</button></form>
     </div>
     <div id="localCfg" hidden>
       <div class="plist" id="plist"></div>

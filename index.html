@@ -336,6 +336,15 @@ h1 span { background: none; -webkit-background-clip: border-box; background-clip
 .tchip, .alt .ans, .used span { box-shadow: inset 0 1px 0 rgba(255,255,255,.65), inset 0 -2px 4px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.18); }
 .clock-bg { stroke: rgba(255,255,255,.16); }
 @media (max-width: 520px) { .mode-ico { width: 56px; height: 56px; border-radius: 16px; } .logo-fish { width: 88px; } }
+.online-note { color: var(--mute); font-size: 14.5px; margin: 4px 0 0; text-align: center; }
+.join-form { margin-top: 12px; }
+.join-form input { text-transform: uppercase; letter-spacing: 6px; text-align: center; font-size: 22px; font-family: Fredoka, Inter, system-ui, sans-serif; }
+.lobby-link { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 14px; border-radius: 16px; background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.2); margin: 10px 0 14px; }
+.lobby-link span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; font-size: 14px; color: #bfefff; }
+.go.sm { height: 38px; padding: 0 14px; font-size: 14px; border-radius: 12px; }
+#lobbyList { margin: 6px 0 4px; }
+#lobbyList .pr { padding: 8px 10px; border-radius: 14px; background: rgba(255,255,255,.07); }
+#lobbyStart:disabled { filter: saturate(.3); opacity: .7; }
 </style>
 </head>
 <body>
@@ -413,11 +422,17 @@ h1 span { background: none; -webkit-background-clip: border-box; background-clip
     <div class="topbar"><button class="icon-btn" id="setupBack" aria-label="Back">←</button><div class="round">Puffer Panic</div><div></div></div>
     <div class="setup-hero"><svg viewBox="0 0 200 200" class="hero-puffer"><use href="#pufferBig"/></svg>
       <div><h2>Pass the puffer.</h2><p>Name an answer that fits the category to pass it on. No repeats. If it pops while you hold it, you lose a heart. Rare answers fill your meter for a bonus heart. Last one floating wins.</p></div></div>
-    <div class="seg big" id="pmode"><button data-v="bots" class="on">vs Bots</button><button data-v="local">Pass &amp; Play</button></div>
+    <div class="seg big" id="pmode"><button data-v="bots" class="on">vs Bots</button><button data-v="local">Pass &amp; Play</button><button data-v="online">🌐 Online</button></div>
+    <label class="fld" id="nameFld">Your name<input id="youName" maxlength="14" placeholder="You"></label>
+    <div class="pmsg" id="pMsgSetup"></div>
     <div id="botsCfg">
-      <label class="fld">Your name<input id="youName" maxlength="14" placeholder="You"></label>
       <div class="row2"><span>Bots</span><div class="seg" id="botCount"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3" class="on">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="7">7</button></div></div>
       <div class="row2"><span>Bot level</span><div class="seg" id="botLevel"><button data-v="easy">Easy</button><button data-v="normal" class="on">Normal</button><button data-v="hard">Hard</button></div></div>
+    </div>
+    <div id="onlineCfg" hidden>
+      <p class="online-note">Play together on different phones. One person creates a room, everyone else joins with the 4-letter code.</p>
+      <button class="cta blue" id="createRoom">＋ Create a room</button>
+      <form id="joinForm" autocomplete="off" class="join-form"><input id="joinCode" maxlength="4" placeholder="CODE" autocapitalize="characters" spellcheck="false"><button class="go" type="submit">Join</button></form>
     </div>
     <div id="localCfg" hidden>
       <div class="plist" id="plist"></div>
@@ -1428,7 +1443,12 @@ function segBind(id, key, conv = v => v) {
   [...s.children].forEach(b => { b.classList.toggle('on', String(cfg[key]) === b.dataset.v); b.onclick = () => { cfg[key] = conv(b.dataset.v); [...s.children].forEach(x => x.classList.toggle('on', x === b)); saveCfg(); if (key === 'pmode') syncMode(); }; });
 }
 function saveCfg() { store.patch(v => v.party = cfg); }
-function syncMode() { $('#botsCfg').hidden = cfg.pmode !== 'bots'; $('#localCfg').hidden = cfg.pmode !== 'local'; renderPlist(); }
+function syncMode() {
+  $('#nameFld').hidden = cfg.pmode === 'local';
+  $('#botsCfg').hidden = cfg.pmode !== 'bots'; $('#localCfg').hidden = cfg.pmode !== 'local'; $('#onlineCfg').hidden = cfg.pmode !== 'online';
+  $('#wake').hidden = cfg.pmode === 'online';
+  renderPlist();
+}
 function renderPlist() {
   const l = $('#plist'); l.innerHTML = '';
   cfg.names.forEach((n, i) => {
@@ -1447,32 +1467,171 @@ function openSetup() {
   $('#youName').value = cfg.you || ''; $('#youName').oninput = e => { cfg.you = e.target.value; saveCfg(); };
   syncMode(); show('setup');
 }
-$('#setupBack').onclick = renderHome;
+$('#setupBack').onclick = () => { Net.leave(); renderHome(); };
 $('#wake').onclick = () => startParty();
 
+// ---------- online (Supabase Realtime broadcast + presence) ----------
+const NET_CFG = { url: 'https://ccppaxiumfggdjejfzyp.supabase.co', key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNjcHBheGl1bWZnZ2RqZWpmenlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQyNjUyMzgsImV4cCI6MjEwOTg0MTIzOH0.KCuh2mvkt5taoMLQWONgYJ9h4IGtweTA3542nu2rwR4' };
+const SITE = 'https://rare-reef.vercel.app';
+const myCid = (() => { let id; try { id = sessionStorage.getItem('rr.cid'); } catch {} if (!id) { id = Math.random().toString(36).slice(2, 10); try { sessionStorage.setItem('rr.cid', id); } catch {} } return id; })();
+const Net = {
+  client: null, ch: null, code: null, role: null, members: [], handlers: {},
+  async connect() {
+    if (this.client) return this.client;
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    this.client = createClient(NET_CFG.url, NET_CFG.key, { auth: { persistSession: false, autoRefreshToken: false }, realtime: { params: { eventsPerSecond: 30 } } });
+    return this.client;
+  },
+  async join(code, role, name) {
+    await this.leave();
+    const client = await this.connect();
+    this.code = code; this.role = role;
+    const ch = client.channel('rr-room-' + code, { config: { broadcast: { self: false }, presence: { key: myCid } } });
+    ch.on('broadcast', { event: '*' }, ({ event, payload }) => this.handlers[event] && this.handlers[event](payload));
+    ch.on('presence', { event: 'sync' }, () => {
+      const st = ch.presenceState();
+      this.members = Object.entries(st).map(([cid, metas]) => ({ cid, ...metas[0] })).sort((a, b) => (b.host ? 1 : 0) - (a.host ? 1 : 0) || a.at - b.at);
+      this.handlers.presence && this.handlers.presence(this.members);
+    });
+    await new Promise((res, rej) => {
+      const t = setTimeout(() => rej(new Error('timeout')), 9000);
+      ch.subscribe(s => { if (s === 'SUBSCRIBED') { clearTimeout(t); res(); } else if (s === 'CHANNEL_ERROR' || s === 'TIMED_OUT' || s === 'CLOSED') { clearTimeout(t); rej(new Error(s)); } });
+    });
+    this.ch = ch;
+    await ch.track({ name, host: role === 'host', at: Date.now() });
+  },
+  send(event, payload) { if (this.ch) this.ch.send({ type: 'broadcast', event, payload }); },
+  async leave() { const ch = this.ch; this.ch = null; this.members = []; this.role = null; if (ch) { try { await ch.untrack(); } catch {} try { this.client.removeChannel(ch); } catch {} } },
+};
+const onlineName = () => ((cfg.you || '').trim() || 'Player').slice(0, 14);
+const newCode = () => Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random() * 24)]).join('');
+function netFail(e) {
+  console.error(e); closeModal(); Net.leave();
+  const inFrame = location.protocol === 'file:' || !/vercel\.app$/.test(location.hostname);
+  modal(`<h3>Couldn't connect</h3><p>${inFrame ? 'Online rooms need the full website. Open it there and try again:' : 'Check your internet connection and try again.'}</p>${inFrame ? `<p><a class="link" href="${SITE}" target="_blank" rel="noopener">${SITE.replace('https://', '')}</a></p>` : ''}<button class="cta blue" onclick="document.getElementById('modal').hidden=true">OK</button>`);
+}
+$('#createRoom').onclick = async () => {
+  const code = newCode();
+  lobbyModal(code, true, 'Creating room…');
+  try { await Net.join(code, 'host', onlineName()); renderLobby(); } catch (e) { netFail(e); }
+};
+$('#joinForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const code = $('#joinCode').value.trim().toUpperCase().replace(/[^A-Z]/g, '');
+  if (code.length !== 4) { bump('#joinForm'); return; }
+  await joinRoom(code);
+});
+async function joinRoom(code) {
+  lobbyModal(code, false, 'Joining…');
+  try {
+    await Net.join(code, 'guest', onlineName());
+    setTimeout(() => { if (Net.code === code && Net.role === 'guest' && !Net.members.some(m => m.host)) { Net.leave(); closeModal(); modal(`<h3>Room ${code} not found</h3><p>Check the code with your friend. The person who created the room must keep it open.</p><button class="cta blue" onclick="document.getElementById('modal').hidden=true">OK</button>`); } }, 4500);
+    renderLobby();
+  } catch (e) { netFail(e); }
+}
+function lobbyModal(code, host, status) {
+  modal(`<h3>Room <span style="letter-spacing:4px;color:#7ff3d6">${code}</span></h3>
+    <p>${host ? 'Friends open the game on their phones, pick <b>Online</b> and type this code.' : 'Waiting for the host to start the game…'}</p>
+    <div class="lobby-link"><span id="lobbyLink">${SITE.replace('https://', '')}/#room-${code}</span><button class="go sm" id="copyLink">Copy link</button></div>
+    <div class="plist" id="lobbyList"><p>${status}</p></div>
+    ${host ? '<button class="cta" id="lobbyStart" disabled>🐡 Wake the puffer</button>' : ''}
+    <button class="link" id="lobbyLeave">Leave room</button>`, c => {
+    c.querySelector('#copyLink').onclick = async () => { try { await navigator.clipboard.writeText(`${SITE}/#room-${code}`); c.querySelector('#copyLink').textContent = 'Copied ✓'; } catch { c.querySelector('#copyLink').textContent = 'Copy failed'; } };
+    c.querySelector('#lobbyLeave').onclick = () => { Net.leave(); closeModal(); };
+    if (host) c.querySelector('#lobbyStart').onclick = () => hostStart();
+  });
+}
+function renderLobby() {
+  const list = $('#lobbyList'); if (!list) return;
+  const ms = Net.members;
+  list.innerHTML = ms.length ? ms.map((m, i) => `<div class="pr"><div class="dot" style="background:${COLORS[i % 8]}"></div><b style="flex:1">${esc(m.name)}${m.cid === myCid ? ' (you)' : ''}</b>${m.host ? '<span class="tchip" style="background:#ffcc33">host</span>' : ''}</div>`).join('') : '<p>Connecting…</p>';
+  const st = $('#lobbyStart'); if (st) { st.disabled = ms.length < 2; st.textContent = ms.length < 2 ? 'Waiting for friends…' : `🐡 Start (${ms.length} players)`; }
+}
+let presenceT = 0;
+Net.handlers.presence = () => {
+  renderLobby();
+  clearTimeout(presenceT); presenceT = setTimeout(checkMembers, 2500); // ignore brief blips
+};
+function checkMembers() {
+  const members = Net.members;
+  if (!P || !P.net || !Net.ch) return;
+  if (P.net.role === 'guest' && !members.some(m => m.host)) { endParty(); Net.leave(); closeModal(); modal(`<h3>The host left</h3><p>The room closed because the person who created it left.</p><button class="cta blue" onclick="document.getElementById('modal').hidden=true">OK</button>`); renderHome(); return; }
+  if (P.net.role === 'host' && P.phase !== 'over') { // someone dropped: they're out
+    const here = new Set(members.map(m => m.cid));
+    for (const p of P.players) if (p.cid && !here.has(p.cid) && !p.out) { p.out = true; p.hearts = 0; bubble(p, 'left the game', 'bad'); if (P.cur === p.id && P.phase === 'turn') { P.phase = 'pass'; P.cur = nextAlive(P.cur); setTimeout(() => P && beginTurn(), 300); } }
+    renderSeats(); if (alive().length <= 1 && P.phase !== 'over') partyOver(); else broadcast({ type: 'sync' });
+  }
+}
+function hostStart() {
+  const ms = Net.members.slice(0, 8);
+  if (ms.length < 2) return;
+  closeModal();
+  startParty({ online: ms });
+}
+Net.handlers.start = snap => { if (Net.role !== 'guest') return; closeModal(); guestStart(snap); };
+Net.handlers.state = snap => { if (!P || !P.net || P.net.role !== 'guest') return; applySnapshot(snap); };
+Net.handlers.answer = msg => { if (!P || !P.net || P.net.role !== 'host') return; hostAnswer(msg); };
+Net.handlers.reject = msg => { if (P && P.net && msg.to === myCid) rejectFx(msg.text, msg.typed); };
+Net.handlers.typing = msg => { if (P && P.players[msg.pid] && msg.pid !== P.meId) bubble(P.players[msg.pid], msg.text); };
+
+// ---------- game ----------
 let P = null;
-function startParty() {
+function startParty(opts = {}) {
   const players = [];
-  if (cfg.pmode === 'bots') {
+  let net = null;
+  if (opts.online) {
+    net = { role: 'host' };
+    opts.online.forEach(m => players.push({ name: m.name || 'Player', human: m.cid === myCid, cid: m.cid === myCid ? null : m.cid, remote: m.cid !== myCid, myCid: m.cid }));
+  } else if (cfg.pmode === 'bots') {
     players.push({ name: (cfg.you || '').trim() || 'You', human: true });
     const names = shuffle(BOT_NAMES.slice());
     for (let i = 0; i < cfg.bots; i++) players.push({ name: names[i], bot: cfg.level });
   } else cfg.names.forEach((n, i) => players.push({ name: n.trim() || 'Player ' + (i + 1), human: true }));
   players.forEach((p, i) => Object.assign(p, { id: i, color: COLORS[i % COLORS.length], hearts: cfg.lives, meter: 0, out: false, answers: 0, best: null, pops: 0 }));
   const sp = SPEEDS[cfg.speed];
-  P = { players, sp, cap: Math.min(6, cfg.lives + 2), bag: new PromptBag(catPool().length >= 3 ? catPool() : BANK, 30), used: new Set(), passes: 0, phase: 'freeze', cur: Math.floor(Math.random() * players.length), raf: 0, tickAcc: 0, local: cfg.pmode === 'local' };
-  Sea.set(260);
-  show('party');
-  buildSeats();
+  endParty();
+  P = { players, sp, cap: Math.min(6, cfg.lives + 2), bag: new PromptBag(catPool().length >= 3 ? catPool() : BANK, 30), used: new Set(), passes: 0, phase: 'freeze', cur: Math.floor(Math.random() * players.length), raf: 0, tickAcc: 0, local: cfg.pmode === 'local' && !net, net, meId: net ? players.findIndex(p => p.human) : null, seq: 0 };
+  enterPartyScreen();
   newCategory();
-  $('#usedList').innerHTML = '';
-  setTimeout(() => beginTurn(), 700);
+  if (net) Net.send('start', snapshot({ type: 'start' }));
+  setTimeout(() => P && beginTurn(), 900);
+}
+function guestStart(snap) {
+  endParty();
+  const players = snap.players.map(p => ({ ...p, human: p.cid === myCid, remote: p.cid !== myCid }));
+  P = { players, sp: SPEEDS.normal, cap: snap.cap, used: new Set(), passes: 0, phase: 'freeze', cur: snap.cur, raf: 0, tickAcc: 0, local: false, net: { role: 'guest' }, meId: players.findIndex(p => p.cid === myCid), seq: 0, cat: null };
+  enterPartyScreen();
+  applySnapshot(snap);
+}
+function enterPartyScreen() {
+  Sea.set(260); show('party'); $('#usedList').innerHTML = '';
+  buildSeats();
   let last = performance.now();
   const loop = now => { if (!P) return; const dt = Math.min(.1, (now - last) / 1000); last = now; partyTick(dt); P.raf = requestAnimationFrame(loop); };
   P.raf = requestAnimationFrame(loop);
 }
-function newCategory() {
-  P.cat = BANK[P.bag.next()]; P.used = new Set(); P.passes = 0;
+// host -> everyone
+function snapshot(ev) {
+  return { seq: ++P.seq, ev, cap: P.cap, cur: P.cur, phase: P.phase, catId: P.cat ? P.cat.id : null, used: [...P.used], timeLeft: P.timeLeft || 0, turnTime: P.turnTime || 1,
+    players: P.players.map(p => ({ id: p.id, name: p.name, color: p.color, hearts: p.hearts, meter: p.meter, out: p.out, answers: p.answers, pops: p.pops, best: p.best ? { name: p.best.name, tier: p.best.tier } : null, cid: p.myCid || (p.human ? myCid : null), bot: p.bot || null })) };
+}
+function broadcast(ev) { if (P && P.net && P.net.role === 'host') Net.send('state', snapshot(ev)); }
+function applySnapshot(s) {
+  if (s.seq <= P.seq && s.ev.type !== 'start') return; P.seq = s.seq;
+  P.cap = s.cap;
+  s.players.forEach(q => { const p = P.players[q.id]; if (p) Object.assign(p, { hearts: q.hearts, meter: q.meter, out: q.out, answers: q.answers, pops: q.pops, best: q.best }); });
+  if (!P.cat || P.cat.id !== s.catId) { P.cat = BANK[s.catId]; categoryUI(); }
+  P.used = new Set(s.used); $('#pUsed').textContent = `${P.cat.valid.length} answers · ${P.used.size} said`;
+  P.cur = s.cur; P.turnTime = s.turnTime; P.timeLeft = s.timeLeft; P.phase = s.phase;
+  const ev = s.ev || {}, p = P.players[ev.pid];
+  if (ev.type === 'accept' && p) acceptFx(p, P.cat.items[ev.idx], ev.bonus);
+  if (ev.type === 'pop' && p) popFx(p);
+  if (ev.type === 'over') { renderSeats(); return partyOverFx(P.players[ev.winner]); }
+  if (s.phase === 'turn' && (ev.type === 'turn' || ev.type === 'start')) turnUI();
+  renderSeats(); pointAt(P.cur);
+}
+function newCategory() { P.cat = BANK[P.bag.next()]; P.used = new Set(); P.passes = 0; categoryUI(); }
+function categoryUI() {
   const b = $('.cat-banner'); b.classList.remove('new'); void b.offsetWidth; b.classList.add('new');
   $('#pPack').textContent = P.cat.pack; $('#pPrompt').textContent = P.cat.prompt; $('#pUsed').textContent = `${P.cat.valid.length} answers · 0 said`;
   $('#usedList').innerHTML = '';
@@ -1481,7 +1640,8 @@ function buildSeats() {
   const ring = $('#ring'); ring.innerHTML = '';
   for (const p of P.players) {
     const s = el('div', 'seat');
-    s.innerHTML = `<div class="bubble"></div><div class="av" style="background:${p.color}">${esc(p.name[0].toUpperCase())}</div><div class="nm">${esc(p.name)}${p.bot ? ' 🤖' : ''}</div><div class="hearts"></div><div class="meter"><i></i></div>`;
+    const tag = p.bot ? ' 🤖' : (P.net && p.id === P.meId ? ' (you)' : '');
+    s.innerHTML = `<div class="bubble"></div><div class="av" style="background-color:${p.color}">${esc(p.name[0].toUpperCase())}</div><div class="nm">${esc(p.name)}${tag}</div><div class="hearts"></div><div class="meter"><i></i></div>`;
     p.el = s; ring.append(s);
   }
   layoutSeats(); renderSeats();
@@ -1490,10 +1650,11 @@ function layoutSeats() {
   if (!P) return;
   const a = $('#arena').getBoundingClientRect(), n = P.players.length;
   const cxp = a.width / 2, cyp = a.height / 2 - 8, compact = innerHeight <= 500, rx = Math.max(90, Math.min(a.width / 2 - 64, compact ? 300 : 360)), ry = Math.max(compact ? 44 : 80, Math.min(a.height / 2 - (compact ? 34 : 72), 240));
+  const base = P.meId != null && P.meId >= 0 ? P.meId : 0; // your seat is always at the bottom
   P.players.forEach((p, i) => {
-    const ang = Math.PI / 2 + (i / n) * Math.PI * 2; p.ang = ang;
-    p.el.style.left = (cxp + Math.cos(ang) * rx) + 'px'; p.el.style.top = (cyp + Math.sin(ang) * ry) + 'px';
+    const ang = Math.PI / 2 + (((i - base + n) % n) / n) * Math.PI * 2; p.ang = ang;
     p.sx = cxp + Math.cos(ang) * rx; p.sy = cyp + Math.sin(ang) * ry;
+    p.el.style.left = p.sx + 'px'; p.el.style.top = p.sy + 'px';
   });
   pointAt(P.cur);
 }
@@ -1510,37 +1671,44 @@ function pointAt(id) {
   const a = $('#arena').getBoundingClientRect();
   const deg = Math.atan2(p.sy - (a.height / 2 - 8), p.sx - a.width / 2) * 180 / Math.PI;
   $('#pointer').style.transform = `rotate(${deg}deg)`;
-  const pf = $('#puffer'); pf.style.transform = `scaleX(${Math.cos(deg * Math.PI / 180) < 0 ? -1 : 1})`;
+  $('#puffer').style.transform = `scaleX(${Math.cos(deg * Math.PI / 180) < 0 ? -1 : 1})`;
 }
 const alive = () => P.players.filter(p => !p.out);
 function nextAlive(from) { const n = P.players.length; for (let k = 1; k <= n; k++) { const p = P.players[(from + k) % n]; if (!p.out) return p.id; } return from; }
 function bubble(p, txt, kind = '') { const b = p.el.querySelector('.bubble'); b.textContent = txt; b.className = 'bubble' + (txt ? ' on' : '') + (kind ? ' ' + kind : ''); }
+const isMine = p => p.human && (!P.net || p.id === P.meId);
 
-function beginTurn() {
+// whose turn it is, from this device's point of view
+function turnUI() {
+  const p = P.players[P.cur], inp = $('#pInput'), lbl = $('#turnLbl'), msg = $('#pMsg');
+  P.players.forEach(q => q !== p && !q.el.querySelector('.bubble.bad') && bubble(q, ''));
+  msg.textContent = ''; msg.className = 'pmsg';
+  if (isMine(p)) {
+    lbl.textContent = P.local ? `${p.name}, your turn!` : 'Your turn: name one!'; lbl.className = 'turn-lbl mine';
+    inp.disabled = false; inp.value = ''; inp.placeholder = P.cat.prompt + '…'; inp.focus(); $('#pForm .go').disabled = false;
+    Sound.bubble();
+  } else {
+    const verb = p.bot ? 'is thinking…' : 'is typing…';
+    lbl.textContent = `${p.name} ${verb}`; lbl.className = 'turn-lbl';
+    inp.disabled = true; inp.value = ''; inp.placeholder = `${p.name} ${verb}`; $('#pForm .go').disabled = true;
+  }
+}
+function beginTurn() { // host only
   if (!P) return;
-  if (P.cat.valid.length - P.used.size < 3) newCategory(); // category nearly exhausted
+  if (P.cat.valid.length - P.used.size < 3) newCategory();
   const p = P.players[P.cur];
   P.phase = 'turn';
   P.turnTime = Math.max(P.sp.min, P.sp.start - P.sp.step * P.passes);
-  P.timeLeft = P.turnTime; P.tickAcc = 0;
-  pointAt(P.cur); renderSeats();
-  P.players.forEach(q => q !== p && bubble(q, ''));
-  const inp = $('#pInput'), lbl = $('#turnLbl'), msg = $('#pMsg');
-  msg.textContent = ''; msg.className = 'pmsg';
-  if (p.human) {
-    lbl.textContent = P.local ? `${p.name}, your turn!` : 'Your turn: name one!'; lbl.className = 'turn-lbl mine';
-    inp.disabled = false; inp.value = ''; inp.placeholder = P.cat.prompt + '…'; inp.focus();
-    $('#pForm .go').disabled = false;
-  } else {
-    lbl.textContent = `${p.name} is thinking…`; lbl.className = 'turn-lbl';
-    inp.disabled = true; inp.value = ''; inp.placeholder = `${p.name} is thinking…`; $('#pForm .go').disabled = true;
-    const L = BOT_LEVELS[p.bot];
-    const usedFrac = P.used.size / P.cat.valid.length;
+  P.timeLeft = P.turnTime; P.tickAcc = 0; P.plan = null;
+  pointAt(P.cur); renderSeats(); turnUI();
+  if (p.bot) {
+    const L = BOT_LEVELS[p.bot], usedFrac = P.used.size / P.cat.valid.length;
     const failP = L.fail + usedFrac * .55 + (P.turnTime <= 4 ? .06 : 0);
     const think = rand(L.think[0], L.think[1]) * (1 + usedFrac * .8) * (P.turnTime < 6 ? .8 : 1);
     P.plan = { t: 0, think, fail: Math.random() < failP, item: botPick(P.cat, P.used, p.bot), tries: 0 };
     bubble(p, '…');
   }
+  broadcast({ type: 'turn' });
 }
 function partyTick(dt) {
   if (P.phase !== 'turn') return;
@@ -1553,10 +1721,10 @@ function partyTick(dt) {
   pf.className = 'puffer s' + stage;
   pf.querySelector('svg').style.transform = `scale(${0.82 + (1 - f) * .62})`;
   P.tickAcc += dt;
-  const iv = [.6, .42, .26, .13][stage];
-  if (P.tickAcc >= iv) { P.tickAcc = 0; Sound.tick(stage >= 2); }
+  if (P.tickAcc >= [.6, .42, .26, .13][stage]) { P.tickAcc = 0; Sound.tick(stage >= 2); }
+  if (P.net && P.net.role === 'guest') return; // the host decides when it pops
   const p = P.players[P.cur];
-  if (!p.human && P.plan) botStep(p, dt);
+  if (p.bot && P.plan) botStep(p, dt);
   if (P.timeLeft <= 0) pop();
 }
 function botStep(p, dt) {
@@ -1569,50 +1737,94 @@ function botStep(p, dt) {
   }
   if (pl.t >= pl.think) {
     if (!pl.fail && pl.item && !P.used.has(pl.item.idx)) { accept(p, pl.item); return; }
-    // stuck: show the flub, then maybe find something later
     pl.tries++; bubble(p, pl.flub || '???', 'bad'); if (pl.tries === 1) Sound.bad();
     pl.flub = null; pl.think = pl.t + rand(1.4, 3.2);
     if (Math.random() < .35 / pl.tries) { pl.fail = false; pl.item = botPick(P.cat, P.used, p.bot); }
   }
 }
+// validate an answer (host). returns {item} or {err}
+function judge(text) {
+  const r = matchAnswer(P.cat, text);
+  if (!r) return { err: `“${text}” isn't on the list. Quick, try another!` };
+  if (r.item.trap) return { err: `Nice try, ${r.item.name} doesn't count!` };
+  if (P.used.has(r.item.idx)) return { err: `${r.item.name} was already said!` };
+  return { item: r.item };
+}
+function rejectFx(text, typed) {
+  const me = P.players[P.cur], msg = $('#pMsg');
+  msg.textContent = text; msg.className = 'pmsg'; bump('#pForm'); Sound.bad();
+  if (me) bubble(me, typed || '', 'bad');
+  const inp = $('#pInput'); inp.disabled = !isMine(me); if (!inp.disabled) { inp.select(); $('#pForm .go').disabled = false; }
+}
 $('#pForm').addEventListener('submit', e => {
   e.preventDefault(); if (!P || P.phase !== 'turn') return;
-  const p = P.players[P.cur]; if (!p.human) return;
+  const p = P.players[P.cur]; if (!isMine(p)) return;
   const txt = $('#pInput').value.trim(); if (!txt) return;
-  const r = matchAnswer(P.cat, txt), msg = $('#pMsg');
-  const fail = t => { msg.textContent = t; msg.className = 'pmsg'; bump('#pForm'); Sound.bad(); bubble(p, txt, 'bad'); $('#pInput').select(); };
-  if (!r) return fail(`“${txt}” isn't on the list. Quick, try another!`);
-  if (r.item.trap) return fail(`Nice try, ${r.item.name} doesn't count!`);
-  if (P.used.has(r.item.idx)) return fail(`${r.item.name} was already said!`);
-  accept(p, r.item);
+  if (P.net && P.net.role === 'guest') { // ask the host
+    Net.send('answer', { from: myCid, pid: p.id, text: txt, seq: P.seq });
+    $('#pMsg').textContent = 'Checking…'; $('#pMsg').className = 'pmsg ok'; $('#pForm .go').disabled = true;
+    return;
+  }
+  const j = judge(txt);
+  if (j.err) { rejectFx(j.err, txt); return; }
+  accept(p, j.item);
 });
-$('#pInput').addEventListener('input', () => { const p = P && P.players[P.cur]; if (p && p.human && P.phase === 'turn') bubble(p, $('#pInput').value); });
-function accept(p, item) {
+function hostAnswer(msg) {
+  if (P.phase !== 'turn') return;
+  const p = P.players[P.cur]; if (!p || p.myCid !== msg.from) return;
+  const j = judge(msg.text);
+  if (j.err) { Net.send('reject', { to: msg.from, text: j.err, typed: msg.text }); bubble(p, msg.text, 'bad'); return; }
+  accept(p, j.item);
+}
+let typingT = 0;
+$('#pInput').addEventListener('input', () => {
+  const p = P && P.players[P.cur]; if (!p || !isMine(p) || P.phase !== 'turn') return;
+  const v = $('#pInput').value; bubble(p, v);
+  if (P.net) { clearTimeout(typingT); typingT = setTimeout(() => Net.send('typing', { pid: p.id, text: v.slice(0, 30) }), 90); }
+});
+function accept(p, item) { // host
   P.used.add(item.idx); P.passes++; p.answers++;
   const T = TIERS[item.tier];
   if (!p.best || T.pts > TIERS[p.best.tier].pts) p.best = item;
   p.meter += T.meter;
   let bonus = false;
   if (p.meter >= 100) { if (p.hearts < P.cap) { p.hearts++; bonus = true; p.meter -= 100; } else p.meter = 100; }
-  bubble(p, item.name, 'good');
-  Sound.good(item.tier);
-  const chip = el('span', null, esc(item.name)); chip.style.background = T.color; chip.title = T.name; $('#usedList').prepend(chip);
-  $('#pUsed').textContent = `${P.cat.valid.length} answers · ${P.used.size} said`;
-  const msg = $('#pMsg');
-  msg.className = 'pmsg ok';
-  msg.textContent = `${p.name}: ${item.name} · ${T.emoji} ${T.name}${bonus ? ' · ❤️ bonus heart!' : T.meter ? ` · meter +${T.meter}` : ''}`;
-  if (bonus || item.tier === 4) { const r = p.el.getBoundingClientRect(); Sea.burst(r.left + r.width / 2, r.top + 30, T.color, 24, .7); }
   P.phase = 'pass'; P.plan = null;
-  $('#pInput').disabled = true;
+  const pid = p.id;
   P.cur = nextAlive(P.cur);
+  acceptFx(p, item, bonus);
   renderSeats(); pointAt(P.cur);
+  broadcast({ type: 'accept', pid, idx: item.idx, bonus });
   setTimeout(() => P && P.phase === 'pass' && beginTurn(), 380);
 }
-function pop() {
+function acceptFx(p, item, bonus) {
+  const T = TIERS[item.tier];
+  bubble(p, item.name, 'good'); Sound.good(item.tier);
+  const chip = el('span', null, esc(item.name)); chip.style.background = T.color; chip.title = T.name; $('#usedList').prepend(chip);
+  $('#pUsed').textContent = `${P.cat.valid.length} answers · ${P.used.size} said`;
+  const msg = $('#pMsg'); msg.className = 'pmsg ok';
+  msg.textContent = `${p.name}: ${item.name} · ${T.emoji} ${T.name}${bonus ? ' · ❤️ bonus heart!' : T.meter ? ` · meter +${T.meter}` : ''}`;
+  if (bonus || item.tier === 4) { const r = p.el.getBoundingClientRect(); Sea.burst(r.left + r.width / 2, r.top + 30, T.color, 24, .7); }
+  $('#pInput').disabled = true; $('#pForm .go').disabled = true;
+}
+function pop() { // host
   P.phase = 'freeze';
   const p = P.players[P.cur];
   p.hearts--; p.pops++;
   if (p.hearts <= 0) { p.hearts = 0; p.out = true; }
+  popFx(p);
+  broadcast({ type: 'pop', pid: p.id });
+  setTimeout(() => {
+    if (!P) return;
+    if (alive().length <= 1) return partyOver();
+    if (p.out) P.cur = nextAlive(P.cur);
+    newCategory();
+    renderSeats(); pointAt(P.cur);
+    broadcast({ type: 'newcat' });
+    setTimeout(() => P && beginTurn(), 900);
+  }, 1700);
+}
+function popFx(p) {
   const pf = $('#puffer'); pf.className = 'puffer popped';
   const pt = $('#popTxt'); pt.textContent = 'POP!'; pt.classList.remove('on'); void pt.offsetWidth; pt.classList.add('on');
   const r = $('#pufferWrap').getBoundingClientRect();
@@ -1623,47 +1835,55 @@ function pop() {
   $('#pInput').disabled = true; $('#pForm .go').disabled = true;
   const lbl = $('#turnLbl'); lbl.className = 'turn-lbl'; lbl.textContent = p.out ? `${p.name} is out!` : `${p.name} loses a heart!`;
   $('#pMsg').textContent = ''; renderSeats();
-  setTimeout(() => {
-    if (!P) return;
-    pf.className = 'puffer sleep'; pf.querySelector('svg').style.transform = 'scale(.82)';
-    $('#clockFg').style.strokeDashoffset = 0;
-    if (alive().length <= 1) return partyOver();
-    if (p.out) P.cur = nextAlive(P.cur);
-    newCategory();
-    renderSeats(); pointAt(P.cur);
-    setTimeout(() => P && beginTurn(), 900);
-  }, 1700);
+  setTimeout(() => { if (!P) return; pf.className = 'puffer sleep'; pf.querySelector('svg').style.transform = 'scale(.82)'; $('#clockFg').style.strokeDashoffset = 0; }, 1700);
 }
-function partyOver() {
+function partyOver() { // host
   P.phase = 'over'; renderSeats();
   const w = alive()[0] || P.players[0];
-  const youWon = w.human && !P.local;
+  broadcast({ type: 'over', winner: w.id });
+  partyOverFx(w);
+}
+function partyOverFx(w) {
+  P.phase = 'over';
+  const youWon = isMine(w) && !P.local;
   if (youWon) store.patch(v => v.partyWins = (v.partyWins || 0) + 1);
   Sound.win();
+  const host = !P.net || P.net.role === 'host';
   const rows = P.players.slice().sort((a, b) => b.hearts - a.hearts || b.answers - a.answers).map(p => `<div class="trow"><span class="tchip" style="background:${p.color};color:#fff">${esc(p.name)}${p === w ? ' 👑' : ''}</span><div><b>${p.answers} answer${p.answers === 1 ? '' : 's'}</b>${p.best ? ` · best: ${esc(p.best.name)} (${TIERS[p.best.tier].name})` : ''}<br><small>${p.out ? 'Popped out' : 'Still floating with ' + '❤️'.repeat(p.hearts)}</small></div></div>`).join('');
-  modal(`<div style="text-align:center"><div class="winner-av" style="background:${w.color}">${esc(w.name[0].toUpperCase())}</div><h3>${esc(w.name)} ${w.human && !P.local ? '(you!) ' : ''}is the last one floating!</h3></div>${rows}
-    <div class="res-btns"><button class="cta" id="pAgain">Play again</button><button class="cta ghost" id="pSetup">Change setup</button></div><button class="link" id="pHome">Back to home</button>`, c => {
-    c.querySelector('#pAgain').onclick = () => { closeModal(); endParty(); startParty(); };
-    c.querySelector('#pSetup').onclick = () => { closeModal(); endParty(); openSetup(); };
-    c.querySelector('#pHome').onclick = () => { closeModal(); endParty(); renderHome(); };
+  modal(`<div style="text-align:center"><div class="winner-av" style="background-color:${w.color}">${esc(w.name[0].toUpperCase())}</div><h3>${esc(w.name)} ${youWon ? '(you!) ' : ''}is the last one floating!</h3></div>${rows}
+    ${host ? `<div class="res-btns"><button class="cta" id="pAgain">Play again</button><button class="cta ghost" id="pSetup">${P.net ? 'Back to lobby' : 'Change setup'}</button></div>` : '<p style="text-align:center">Waiting for the host to start another round…</p>'}<button class="link" id="pHome">${P.net ? 'Leave room' : 'Back to home'}</button>`, c => {
+    const again = c.querySelector('#pAgain'), setup = c.querySelector('#pSetup');
+    if (again) again.onclick = () => { closeModal(); if (P && P.net) { if (Net.members.length < 2) { endParty(); openSetup(); lobbyModal(Net.code, true, ''); renderLobby(); return; } startParty({ online: Net.members.slice(0, 8) }); } else { endParty(); startParty(); } };
+    if (setup) setup.onclick = () => { closeModal(); const online = P && P.net; endParty(); openSetup(); if (online) { lobbyModal(Net.code, true, ''); renderLobby(); } };
+    c.querySelector('#pHome').onclick = () => { closeModal(); endParty(); Net.leave(); renderHome(); };
   });
 }
 function endParty() { if (P) cancelAnimationFrame(P.raf); P = null; }
 $('#partyBack').onclick = () => {
-  if (!P || P.phase === 'over') { endParty(); return renderHome(); }
-  const was = P.phase; P.phase = 'paused';
-  modal(`<h3>Leave the party?</h3><p>The puffer will keep everyone's hearts where they are… just kidding, the game ends.</p><div class="res-btns"><button class="cta ghost" id="stay">Keep playing</button><button class="cta" id="leave">Leave</button></div>`, c => {
-    c.querySelector('#stay').onclick = () => { closeModal(); if (P) P.phase = was; };
-    c.querySelector('#leave').onclick = () => { closeModal(); endParty(); renderHome(); };
+  if (!P || P.phase === 'over') { endParty(); Net.leave(); return renderHome(); }
+  const was = P.phase, solo = !P.net;
+  if (solo) P.phase = 'paused';
+  modal(`<h3>Leave the game?</h3><p>${P.net ? (P.net.role === 'host' ? 'You are the host, so the room closes for everyone.' : 'You will be out of this round.') : 'This game will end.'}</p><div class="res-btns"><button class="cta ghost" id="stay">Keep playing</button><button class="cta" id="leave">Leave</button></div>`, c => {
+    c.querySelector('#stay').onclick = () => { closeModal(); if (P && solo) P.phase = was; };
+    c.querySelector('#leave').onclick = () => { closeModal(); endParty(); Net.leave(); renderHome(); };
   });
 };
 const syncMute = () => { $('#muteBtn').textContent = Sound.muted ? '🔇' : '🔊'; };
 $('#muteBtn').onclick = () => { Sound.muted = !Sound.muted; store.patch(v => v.muted = Sound.muted); syncMute(); };
 syncMute();
+// invite links: rare-reef.vercel.app/#room-ABCD
+function checkInvite() {
+  const m = /^#room-([A-Z]{4})$/i.exec(location.hash || ''); if (!m) return;
+  cfg.pmode = 'online'; saveCfg(); openSetup(); $('#joinCode').value = m[1].toUpperCase();
+  if (!(cfg.you || '').trim()) { $('#youName').focus(); $('#pMsgSetup').textContent = 'Type your name, then tap Join.'; }
+  else joinRoom(m[1].toUpperCase());
+}
+addEventListener('hashchange', checkInvite);
 
 // test hook
-window.__rr = { BANK, get D() { return D; }, get P() { return P; }, matchAnswer, startDive, startParty, cfg };
+window.__rr = { BANK, get D() { return D; }, get P() { return P; }, matchAnswer, startDive, startParty, cfg, Net, myCid, applySnapshot: s => applySnapshot(s), hostAnswer: m => hostAnswer(m) };
 renderHome();
+checkInvite();
 })();
 </script>
 </body>

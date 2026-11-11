@@ -7,7 +7,7 @@ A free, unlimited rare-answer trivia game in one HTML file, with a hot-potato pa
 ## Modes
 - **Dive**: 7 category prompts, 25 seconds each. Common answers barely count; rare ones send you deep (every point = 10 m).
 - **Endless Dive**: no limit, keep going until you miss 3 prompts.
-- **Puffer Panic**: pass the puffer before it pops. Name a valid answer (no repeats) to pass it on; if it pops on you, you lose a heart. Rare answers fill your meter for a bonus heart. Last one floating wins. Play against 1–7 bots (Easy / Normal / Hard) or pass-and-play with up to 8 friends.
+- **Puffer Panic**: pass the puffer before it pops. Name a valid answer (no repeats) to pass it on; if it pops on you, you lose a heart. Rare answers fill your meter for a bonus heart. Last one floating wins. Play against 1–7 bots (Easy / Normal / Hard), pass-and-play on one device, or **online on different devices**: create a room, friends join with the 4-letter code or the invite link (up to 8 players). Online rooms run on Supabase Realtime; the room creator's device runs the game.
 
 ## Scoring
 | Tier | Points | Depth |
