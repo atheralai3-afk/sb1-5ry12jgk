@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rare Reef</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>:root {
+  --ink: #eaf6ff; --mute: rgba(234,246,255,.62); --glass: rgba(255,255,255,.08); --glass2: rgba(255,255,255,.14);
+  --line: rgba(255,255,255,.16); --accent: #4fe3c1; --accent2: #36a8ff; --hot: #ff6b5a; --gold: #ffcc33;
+  --r: 22px; --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; background: #04263a; color: var(--ink); font: 500 16px/1.4 Inter, system-ui, sans-serif; overflow: hidden; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+input { font: inherit; }
+#sea { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+#flash { position: fixed; inset: 0; z-index: 50; pointer-events: none; opacity: 0; background: radial-gradient(circle, rgba(255,255,255,.0) 30%, rgba(255,80,60,.55)); transition: opacity .2s; }
+#flash.on { opacity: 1; }
+#flash.white { background: rgba(255,255,255,.85); }
+.screen { position: fixed; inset: 0; z-index: 1; display: none; overflow-y: auto; padding: calc(16px + var(--safe-t)) 16px calc(24px + var(--safe-b)); }
+.screen.on { display: block; animation: fadeUp .45s cubic-bezier(.2,.8,.2,1); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+h1, h2, h3, .prompt, .cat-q, .round, .cta, .mode-txt b, .big-num, .t-name, .t-pts { font-family: Fredoka, Inter, system-ui, sans-serif; }
+
+/* ---------- home ---------- */
+.home-wrap { max-width: 720px; margin: 0 auto; padding: 4vh 0 30px; text-align: center; }
+.logo { display: inline-flex; align-items: center; gap: 12px; }
+.logo-fish { width: 74px; animation: bob 3.4s ease-in-out infinite; filter: drop-shadow(0 8px 18px rgba(42,167,255,.45)); }
+@keyframes bob { 50% { transform: translateY(-6px) rotate(-3deg); } }
+h1 { margin: 0; font-size: clamp(46px, 9vw, 76px); line-height: 1; font-weight: 700; letter-spacing: -.5px; }
+h1 span { background: linear-gradient(90deg, #7ef0d4, #36a8ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-left: 6px; }
+.tag { color: var(--mute); font-size: 18px; max-width: 470px; margin: 14px auto 26px; }
+.mode-grid { display: grid; gap: 14px; }
+.mode-card { position: relative; display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-radius: var(--r); text-align: left;
+  background: linear-gradient(135deg, rgba(255,255,255,.13), rgba(255,255,255,.05)); border: 1px solid var(--line); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.18); transition: transform .25s cubic-bezier(.2,.9,.3,1.4), box-shadow .25s; }
+.mode-card:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 18px 50px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.22); }
+.mode-card:active { transform: scale(.98); }
+.mode-ico { width: 60px; height: 60px; border-radius: 18px; display: grid; place-items: center; font-size: 30px; flex: none; }
+.dive .mode-ico { background: linear-gradient(160deg, #36a8ff, #1667c9); }
+.endless .mode-ico { background: linear-gradient(160deg, #4fe3c1, #129a86); }
+.partyc .mode-ico { background: linear-gradient(160deg, #ffcf5a, #ff8a3d); }
+.mode-txt { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.mode-txt b { font-size: 24px; font-weight: 600; }
+.mode-txt span { color: var(--mute); font-size: 14.5px; }
+.mode-badge { position: absolute; top: 12px; right: 14px; font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; padding: 4px 9px; border-radius: 99px; background: rgba(79,227,193,.18); color: #7ef0d4; }
+.mode-badge.hot { background: rgba(255,170,60,.2); color: #ffc46b; }
+.packs { margin: 22px 0 6px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.pack { padding: 7px 13px; border-radius: 99px; border: 1px solid var(--line); background: var(--glass); font-size: 13.5px; font-weight: 600; color: var(--mute); transition: .2s; }
+.pack.on { background: rgba(79,227,193,.2); border-color: rgba(79,227,193,.6); color: #fff; }
+.stats { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+.stat { padding: 10px 16px; border-radius: 16px; background: var(--glass); border: 1px solid var(--line); min-width: 112px; }
+.stat b { display: block; font-family: Fredoka, Inter, system-ui, sans-serif; font-size: 22px; }
+.stat span { font-size: 12px; color: var(--mute); text-transform: uppercase; letter-spacing: .5px; font-weight: 700; }
+.tiers-legend { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 18px 0 4px; }
+.tchip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 99px; font-size: 12.5px; font-weight: 700; color: #06202f; }
+.link { color: #8fe9d6; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; padding: 8px; }
+.link.small { font-size: 13.5px; color: var(--mute); }
+
+/* ---------- dive ---------- */
+.dive-wrap, .setup-wrap, .res-wrap { max-width: 640px; margin: 0 auto; }
+.topbar { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 10px; margin-bottom: 14px; }
+.icon-btn { width: 44px; height: 44px; border-radius: 14px; background: var(--glass); border: 1px solid var(--line); font-size: 20px; display: grid; place-items: center; }
+.round { font-size: 22px; font-weight: 600; text-align: center; }
+.depth { font-family: Fredoka, Inter, system-ui, sans-serif; font-size: 20px; font-weight: 600; padding: 7px 14px; border-radius: 14px; background: rgba(0,0,0,.25); border: 1px solid var(--line); min-width: 92px; text-align: right; }
+.lives { display: flex; gap: 6px; justify-content: center; min-height: 0; margin-bottom: 8px; }
+.lives span { font-size: 22px; transition: .3s; }
+.lives span.gone { filter: grayscale(1); opacity: .3; transform: scale(.8); }
+.prompt-card { padding: 22px; border-radius: 26px; background: linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,.05)); border: 1px solid var(--line);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 20px 60px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.2); text-align: center; }
+.chip { display: inline-block; padding: 5px 12px; border-radius: 99px; background: rgba(255,255,255,.12); font-size: 12.5px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: #bfefff; }
+.prompt { font-size: clamp(28px, 6vw, 40px); font-weight: 600; line-height: 1.1; margin: 14px 0 18px; }
+.timer { position: relative; height: 12px; border-radius: 99px; background: rgba(0,0,0,.3); overflow: hidden; margin: 0 0 16px; }
+.timer-fill { position: absolute; inset: 0; transform-origin: left; background: linear-gradient(90deg, #4fe3c1, #36a8ff); border-radius: 99px; }
+.timer.low .timer-fill { background: linear-gradient(90deg, #ff9f43, #ff5a5a); }
+.timer span { position: absolute; right: 8px; top: -22px; font-size: 13px; font-weight: 800; color: var(--mute); }
+form { display: flex; gap: 10px; }
+form input { flex: 1; min-width: 0; height: 56px; padding: 0 18px; border-radius: 18px; border: 2px solid rgba(255,255,255,.2); background: rgba(3,20,32,.55); color: #fff; font-size: 19px; font-weight: 600; outline: none; transition: border-color .2s, box-shadow .2s; }
+form input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(79,227,193,.18); }
+form input:disabled { opacity: .5; }
+.go { height: 56px; padding: 0 22px; border-radius: 18px; background: linear-gradient(160deg, #4fe3c1, #1fb39a); color: #03251f; font-weight: 800; font-size: 17px; box-shadow: 0 8px 22px rgba(79,227,193,.35); transition: transform .15s; }
+.go:active { transform: scale(.95); }
+.go:disabled { opacity: .45; }
+.msg { min-height: 24px; margin-top: 10px; font-weight: 700; color: #ffb4a8; }
+.msg.ok { color: #8ff0d6; }
+.shake { animation: shake .4s; }
+@keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+.reveal { margin-top: 16px; }
+.tier-card { border-radius: 26px; padding: 22px; text-align: center; color: #05202d; position: relative; overflow: hidden; animation: pop .55s cubic-bezier(.2,1.4,.4,1); box-shadow: 0 20px 50px rgba(0,0,0,.3); }
+@keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: none; opacity: 1; } }
+.tier-card .t-emoji { font-size: 44px; line-height: 1; }
+.tier-card .t-name { font-family: Fredoka, Inter, system-ui, sans-serif; font-size: 34px; font-weight: 700; margin-top: 4px; }
+.tier-card .t-ans { font-weight: 700; font-size: 17px; opacity: .85; }
+.tier-card .t-pts { font-family: Fredoka, Inter, system-ui, sans-serif; font-size: 22px; font-weight: 600; margin-top: 6px; }
+.tier-card .t-blurb { font-size: 14px; opacity: .75; margin-top: 2px; }
+.tier-card.miss { background: linear-gradient(160deg, #3b4b5a, #25323f); color: #eaf6ff; }
+.alts { margin-top: 14px; display: grid; gap: 10px; }
+.alt { padding: 12px 16px; border-radius: 18px; background: var(--glass); border: 1px solid var(--line); text-align: left; }
+.alt b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--mute); margin-bottom: 6px; }
+.alt .ans { display: inline-block; margin: 3px 6px 3px 0; padding: 4px 10px; border-radius: 99px; font-size: 14px; font-weight: 700; color: #06202f; }
+.next { width: 100%; margin-top: 14px; }
+.cta { width: 100%; height: 62px; border-radius: 20px; background: linear-gradient(160deg, #ffd25e, #ff8a3d); color: #3a1800; font-size: 22px; font-weight: 700; box-shadow: 0 12px 30px rgba(255,138,61,.4); transition: transform .15s; margin-top: 16px; }
+.cta.blue { background: linear-gradient(160deg, #4fe3c1, #2aa7ff); color: #032030; box-shadow: 0 12px 30px rgba(42,167,255,.35); }
+.cta.ghost { background: var(--glass); color: var(--ink); box-shadow: none; border: 1px solid var(--line); height: 54px; font-size: 18px; }
+.cta:active { transform: scale(.97); }
+
+/* depth gauge */
+.gauge { position: fixed; left: max(10px, calc(50% - 400px)); top: 90px; bottom: 40px; width: 46px; z-index: 2; }
+.gauge-track { position: absolute; left: 20px; top: 0; bottom: 0; width: 6px; border-radius: 6px; background: linear-gradient(#5fd3ff, #1667c9 30%, #0b2c6b 60%, #070b25); opacity: .8; }
+.gauge-track i { position: absolute; left: 12px; font-style: normal; font-size: 10px; font-weight: 800; color: rgba(255,255,255,.5); white-space: nowrap; transform: translateY(-50%); letter-spacing: .3px; }
+.gauge-track i::before { content: ""; position: absolute; left: -16px; top: 50%; width: 10px; border-top: 1px solid rgba(255,255,255,.35); }
+.gauge-sub { position: absolute; left: 6px; width: 34px; height: 34px; margin-top: -17px; display: grid; place-items: center; font-size: 22px; transition: top 1.2s cubic-bezier(.3,.8,.3,1); filter: drop-shadow(0 4px 10px rgba(0,0,0,.4)); }
+@media (max-width: 860px) { .gauge { display: none; } }
+
+/* ---------- results ---------- */
+.res-hero { text-align: center; padding: 26px 18px; border-radius: 28px; background: linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,.04)); border: 1px solid var(--line); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.res-hero .zone { font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #8fe9d6; }
+.big-num { font-size: clamp(54px, 13vw, 84px); font-weight: 700; line-height: 1; margin: 6px 0; }
+.res-hero .sub { color: var(--mute); font-weight: 600; }
+.emoji-row { font-size: 28px; letter-spacing: 4px; margin: 14px 0 4px; }
+.res-list { margin-top: 16px; display: grid; gap: 8px; }
+.res-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 12px 16px; border-radius: 18px; background: var(--glass); border: 1px solid var(--line); }
+.res-row .q { font-size: 13px; color: var(--mute); font-weight: 600; }
+.res-row .a { font-weight: 700; font-size: 16px; }
+.res-row .p { grid-row: 1 / span 2; grid-column: 2; text-align: right; }
+.res-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.res-btns .cta { margin-top: 14px; }
+
+/* ---------- setup ---------- */
+.setup-hero { display: flex; gap: 16px; align-items: center; padding: 18px; border-radius: 24px; background: var(--glass); border: 1px solid var(--line); margin-bottom: 16px; }
+.setup-hero h2 { margin: 0 0 4px; font-size: 28px; }
+.setup-hero p { margin: 0; color: var(--mute); font-size: 14.5px; }
+.hero-puffer { width: 96px; height: 96px; flex: none; animation: bob 3s ease-in-out infinite; --pf1: #ffd25e; --pf2: #ffae35; }
+.seg { display: inline-flex; padding: 4px; border-radius: 16px; background: rgba(0,0,0,.28); border: 1px solid var(--line); gap: 2px; flex-wrap: wrap; }
+.seg button { padding: 9px 14px; border-radius: 12px; font-weight: 700; font-size: 15px; color: var(--mute); transition: .2s; }
+.seg button.on { background: #fff; color: #062033; box-shadow: 0 4px 12px rgba(0,0,0,.25); }
+.seg.big { display: flex; width: 100%; margin-bottom: 14px; }
+.seg.big button { flex: 1; padding: 12px; font-size: 17px; }
+.row2 { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 2px; font-weight: 700; flex-wrap: wrap; }
+.fld { display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px; color: var(--mute); margin-bottom: 6px; }
+.fld input, .plist input { height: 50px; border-radius: 14px; border: 2px solid rgba(255,255,255,.18); background: rgba(3,20,32,.5); color: #fff; padding: 0 14px; font-size: 17px; font-weight: 600; outline: none; }
+.plist { display: grid; gap: 8px; }
+.plist .pr { display: flex; gap: 8px; align-items: center; }
+.plist .pr input { flex: 1; }
+.plist .dot { width: 30px; height: 30px; border-radius: 50%; flex: none; }
+
+/* ---------- party ---------- */
+#party { display: none; padding: 0; overflow: hidden; }
+#party.on { display: flex; flex-direction: column; }
+.party-top { display: grid; grid-template-columns: 44px 1fr 44px; gap: 10px; align-items: center; padding: calc(12px + var(--safe-t)) 14px 6px; z-index: 3; }
+.cat-banner { text-align: center; }
+.cat-q { font-size: clamp(22px, 5vw, 32px); font-weight: 600; line-height: 1.1; margin-top: 4px; }
+.cat-used { font-size: 12.5px; color: var(--mute); font-weight: 700; margin-top: 2px; }
+.cat-banner.new .cat-q { animation: pop .5s cubic-bezier(.2,1.4,.4,1); }
+.arena { position: relative; flex: 1; min-height: 0; }
+.ring { position: absolute; inset: 0; }
+.seat { position: absolute; width: 120px; margin-left: -60px; margin-top: -48px; text-align: center; transition: transform .3s, opacity .3s; }
+.seat .av { width: 58px; height: 58px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; font-family: Fredoka, Inter, system-ui, sans-serif; font-weight: 700; font-size: 24px; color: #fff; position: relative;
+  box-shadow: 0 8px 20px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.35); border: 3px solid rgba(255,255,255,.25); transition: .3s; }
+.seat .nm { font-weight: 800; font-size: 14px; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 6px rgba(0,0,0,.5); }
+.seat .hearts { font-size: 13px; letter-spacing: 1px; min-height: 18px; }
+.seat .meter { width: 64px; height: 5px; margin: 3px auto 0; border-radius: 9px; background: rgba(255,255,255,.18); overflow: hidden; }
+.seat .meter i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ffcc33, #ff8a3d); transition: width .5s; }
+.seat.turn .av { border-color: #fff; transform: scale(1.14); box-shadow: 0 0 0 6px rgba(255,255,255,.18), 0 10px 26px rgba(0,0,0,.4); }
+.seat.turn .nm { color: #ffe27a; }
+.seat.out { opacity: .38; filter: grayscale(1); }
+.seat.hit .av { animation: hit .6s; }
+@keyframes hit { 30% { transform: scale(1.3) rotate(-8deg); background: #ff5a5a; } }
+.bubble { position: absolute; left: 50%; bottom: 100%; transform: translate(-50%, -6px); background: #fff; color: #062033; font-weight: 700; font-size: 13.5px; padding: 5px 10px; border-radius: 12px; white-space: nowrap; max-width: 150px; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 6px 16px rgba(0,0,0,.25); opacity: 0; transition: opacity .2s; pointer-events: none; }
+.bubble.on { opacity: 1; }
+.bubble.bad { background: #ff8a7a; }
+.bubble.good { background: #8ff0d6; }
+.bubble::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -6px; border: 6px solid transparent; border-top-color: inherit; }
+.puffer-wrap { position: absolute; left: 50%; top: calc(50% - 8px); width: 220px; height: 220px; margin: -110px 0 0 -110px; }
+.clock { position: absolute; inset: 0; transform: rotate(-90deg); }
+.clock-bg { fill: none; stroke: rgba(255,255,255,.1); stroke-width: 8; }
+.clock-fg { fill: none; stroke: #4fe3c1; stroke-width: 8; stroke-linecap: round; stroke-dasharray: 628.3; transition: stroke .3s; }
+.puffer { position: absolute; inset: 30px; transition: transform .25s cubic-bezier(.3,1.5,.5,1); --pf1: #ffd25e; --pf2: #ffae35; --spine: #e08a12; }
+.puffer svg { width: 100%; height: 100%; overflow: visible; }
+.puffer .spines { transform-origin: 100px 100px; transform: scale(.55); opacity: 0; transition: transform .35s, opacity .35s; }
+.puffer.s1 { --pf1: #ffc84a; --pf2: #ff9d2e; }
+.puffer.s1 .spines { transform: scale(.8); opacity: .7; }
+.puffer.s2 { --pf1: #ffa63d; --pf2: #ff7a2e; --spine: #c4531a; }
+.puffer.s2 .spines { transform: scale(1); opacity: 1; }
+.puffer.s3 { --pf1: #ff7a4a; --pf2: #ff4d3a; --spine: #a3241a; animation: tremble .12s infinite; }
+.puffer.s3 .spines { transform: scale(1.12); opacity: 1; }
+.puffer.sleep { filter: saturate(.6) brightness(.9); }
+.puffer.popped { animation: popped .5s forwards; }
+@keyframes tremble { 25% { translate: -3px 1px; } 50% { translate: 2px -2px; } 75% { translate: -1px 3px; } }
+@keyframes popped { 40% { transform: scale(2.1); opacity: 1; } 100% { transform: scale(2.6); opacity: 0; } }
+.pointer { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transition: transform .35s cubic-bezier(.3,1.3,.5,1); pointer-events: none; }
+.pointer::after { content: ""; position: absolute; left: 96px; top: -11px; border: 11px solid transparent; border-left: 18px solid #fff; filter: drop-shadow(0 2px 6px rgba(0,0,0,.4)); }
+.pop-txt { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.4); font-family: Fredoka, Inter, system-ui, sans-serif; font-weight: 700; font-size: 64px; color: #fff; text-shadow: 0 4px 0 #ff4d3a, 0 10px 30px rgba(0,0,0,.4); opacity: 0; pointer-events: none; white-space: nowrap; }
+.pop-txt.on { animation: popTxt 1.3s forwards; }
+@keyframes popTxt { 15% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); } 70% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -60%) scale(1); } }
+.party-bottom { padding: 6px 14px calc(14px + var(--safe-b)); max-width: 640px; width: 100%; margin: 0 auto; z-index: 3; }
+.turn-lbl { text-align: center; font-family: Fredoka, Inter, system-ui, sans-serif; font-weight: 600; font-size: 18px; margin-bottom: 8px; min-height: 24px; }
+.turn-lbl.mine { color: #ffe27a; }
+.pmsg { min-height: 22px; text-align: center; font-weight: 700; color: #ffb4a8; margin-top: 6px; font-size: 14.5px; }
+.pmsg.ok { color: #8ff0d6; }
+.used { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 2px; scrollbar-width: none; mask-image: linear-gradient(90deg, #000 85%, transparent); }
+.used::-webkit-scrollbar { display: none; }
+.used span { flex: none; padding: 4px 10px; border-radius: 99px; font-size: 13px; font-weight: 700; color: #06202f; animation: pop .35s; }
+.burst { position: fixed; width: 10px; height: 10px; border-radius: 50%; pointer-events: none; z-index: 40; }
+
+/* ---------- modal ---------- */
+.modal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: rgba(2,12,22,.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); padding: 18px; }
+.modal[hidden] { display: none; }
+.modal-card { width: min(520px, 100%); max-height: 86vh; overflow-y: auto; padding: 24px; border-radius: 26px; background: linear-gradient(160deg, #0f3d57, #0a2639); border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(0,0,0,.5); animation: pop .4s cubic-bezier(.2,1.3,.4,1); }
+.modal-card h3 { margin: 0 0 10px; font-size: 26px; }
+.modal-card p { color: var(--mute); margin: 8px 0; }
+.trow { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+.trow .tchip { min-width: 112px; justify-content: center; }
+.trow small { color: var(--mute); }
+.winner-av { width: 96px; height: 96px; margin: 0 auto 8px; border-radius: 50%; display: grid; place-items: center; font-family: Fredoka, Inter, system-ui, sans-serif; font-size: 42px; font-weight: 700; box-shadow: 0 0 0 8px rgba(255,255,255,.12), 0 14px 40px rgba(0,0,0,.4); }
+
+@media (max-width: 520px) {
+  .mode-card { padding: 15px; gap: 12px; } .mode-ico { width: 52px; height: 52px; font-size: 26px; } .mode-txt b { font-size: 21px; }
+  .mode-badge { top: 8px; right: 10px; font-size: 10px; }
+  .prompt-card { padding: 18px 14px; }
+  .go { padding: 0 16px; }
+  .seat { width: 92px; margin-left: -46px; } .seat .av { width: 46px; height: 46px; font-size: 19px; } .seat .nm { font-size: 12.5px; }
+  .puffer-wrap { width: 170px; height: 170px; margin: -85px 0 0 -85px; } .puffer { inset: 22px; }
+  .pointer::after { left: 72px; }
+  .pop-txt { font-size: 50px; }
+}
+@media (max-height: 640px) { .party-bottom .used { display: none; } }
+@media (max-height: 500px) {
+  .party-top { padding-top: calc(6px + var(--safe-t)); padding-bottom: 0; }
+  .cat-banner .chip, .cat-used { display: none; }
+  .cat-q { font-size: 20px; margin-top: 0; }
+  .turn-lbl { display: none; }
+  .party-bottom { padding-top: 2px; padding-bottom: calc(8px + var(--safe-b)); }
+  .party-bottom form input, .party-bottom .go { height: 46px; }
+  .pmsg { min-height: 18px; margin-top: 2px; font-size: 13px; }
+  .seat { width: 96px; margin-left: -48px; margin-top: -26px; }
+  .seat .av { width: 38px; height: 38px; font-size: 16px; border-width: 2px; }
+  .seat .nm { font-size: 12px; margin-top: 2px; }
+  .seat .hearts { font-size: 11px; min-height: 14px; }
+  .seat .meter { display: none; }
+  .puffer-wrap { width: 130px; height: 130px; margin: -65px 0 0 -65px; }
+  .puffer { inset: 16px; }
+  .pointer::after { left: 54px; top: -9px; border-width: 9px; border-left-width: 14px; }
+  .pop-txt { font-size: 40px; }
+}
+
+/* =====================================================================
+   LIQUID GLASS (iOS-style): translucent, frosted, with specular edges
+   ===================================================================== */
+:root {
+  --glass-fill: linear-gradient(180deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,.14) 42%, rgba(255,255,255,.10) 58%, rgba(255,255,255,.18) 100%);
+  --glass-edge: rgba(255,255,255,.42);
+  --glass-shadow: inset 0 1.5px 0 rgba(255,255,255,.75), inset 0 -1px 0 rgba(255,255,255,.18), inset 0 -14px 28px rgba(255,255,255,.05), inset 0 12px 24px rgba(255,255,255,.08), 0 14px 34px rgba(0,12,30,.32), 0 2px 6px rgba(0,12,30,.18);
+  --spring: cubic-bezier(.34,1.56,.64,1);
+}
+.mode-card, .prompt-card, .icon-btn, .stat, .pack, .alt, .res-row, .res-hero, .setup-hero, .seg, .modal-card, .depth, .cta.ghost, form input, .fld input, .plist input, .cat-banner .chip, .chip, .link.small {
+  -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+}
+.mode-card, .prompt-card, .icon-btn, .stat, .pack, .alt, .res-row, .res-hero, .setup-hero, .seg, .depth, .cta.ghost {
+  position: relative; background: var(--glass-fill), rgba(12,60,92,.28); border: 1px solid var(--glass-edge); box-shadow: var(--glass-shadow);
+}
+.modal-card { background: var(--glass-fill), rgba(10,48,74,.78); border: 1px solid var(--glass-edge); box-shadow: var(--glass-shadow), 0 40px 90px rgba(0,0,0,.5); }
+/* top specular sheen */
+.mode-card::before, .prompt-card::before, .res-hero::before, .setup-hero::before, .cta::before, .go::before, .icon-btn::before, .stat::before {
+  content: ""; position: absolute; left: 6%; right: 6%; top: 1px; height: 46%; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,0)); opacity: .55; mask-image: linear-gradient(#000, transparent);
+}
+.mode-card > *, .prompt-card > *, .res-hero > *, .setup-hero > * { position: relative; }
+.mode-card { border-radius: 28px; transition: transform .45s var(--spring), box-shadow .3s, background .3s; }
+.mode-card:hover { transform: translateY(-4px) scale(1.012); background: var(--glass-fill), rgba(20,80,120,.32); }
+.mode-card:active { transform: scale(.975); transition-duration: .12s; }
+.prompt-card { border-radius: 30px; }
+.icon-btn { border-radius: 16px; transition: transform .35s var(--spring); }
+.icon-btn:active { transform: scale(.9); }
+.pack { transition: transform .35s var(--spring), background .2s; }
+.pack:active { transform: scale(.93); }
+.pack.on { background: linear-gradient(180deg, rgba(160,255,232,.55), rgba(79,227,193,.32)), rgba(12,60,92,.3); border-color: rgba(190,255,240,.75); color: #fff; text-shadow: 0 1px 2px rgba(0,60,50,.4); }
+
+/* tinted glass buttons (solid enough to read, still glassy) */
+.go, .cta {
+  position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,.55);
+  -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+  transition: transform .45s var(--spring), box-shadow .3s, filter .2s;
+}
+.go { background: linear-gradient(180deg, rgba(150,255,230,.92), rgba(40,200,168,.86) 55%, rgba(22,160,136,.9)); color: #032a23;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.85), inset 0 -2px 6px rgba(0,80,60,.35), 0 10px 24px rgba(30,200,160,.35), 0 2px 4px rgba(0,40,30,.25); }
+.cta { background: linear-gradient(180deg, rgba(255,228,140,.95), rgba(255,170,70,.9) 55%, rgba(242,120,40,.92)); color: #3a1600;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.9), inset 0 -3px 8px rgba(140,50,0,.3), 0 14px 30px rgba(255,138,61,.38), 0 2px 5px rgba(80,30,0,.25); }
+.cta.blue { background: linear-gradient(180deg, rgba(160,250,240,.95), rgba(70,200,240,.9) 55%, rgba(40,150,235,.92)); color: #02243a;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.9), inset 0 -3px 8px rgba(0,60,120,.3), 0 14px 30px rgba(42,167,255,.36), 0 2px 5px rgba(0,30,60,.25); }
+.cta.ghost { color: #fff; }
+.go::after, .cta::after { content: ""; position: absolute; top: 0; bottom: 0; width: 40%; left: -60%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent); transform: skewX(-20deg); transition: left .7s ease; pointer-events: none; }
+.go:hover::after, .cta:hover::after { left: 130%; }
+.go:active, .cta:active { transform: scale(.955); transition-duration: .12s; filter: brightness(1.05); }
+.go:disabled { filter: saturate(.3); opacity: .55; }
+
+/* glass inputs */
+form input, .fld input, .plist input {
+  background: linear-gradient(180deg, rgba(0,20,36,.42), rgba(0,30,50,.30)); border: 1px solid rgba(255,255,255,.34);
+  box-shadow: inset 0 2px 6px rgba(0,10,20,.35), inset 0 -1px 0 rgba(255,255,255,.18), 0 1px 0 rgba(255,255,255,.12);
+}
+form input:focus { border-color: rgba(150,255,230,.9); box-shadow: inset 0 2px 6px rgba(0,10,20,.35), 0 0 0 4px rgba(79,227,193,.22); }
+
+/* segmented control with a raised glass thumb */
+.seg { border-radius: 18px; }
+.seg button { transition: transform .35s var(--spring), background .25s, color .25s; }
+.seg button:active { transform: scale(.92); }
+.seg button.on { background: linear-gradient(180deg, #ffffff, #e9f5fb); color: #062033; box-shadow: inset 0 1px 0 #fff, 0 4px 14px rgba(0,20,40,.3), 0 1px 2px rgba(0,20,40,.2); }
+
+/* glossy iOS app-icon tiles holding 3D objects */
+.mode-ico { position: relative; overflow: hidden; border-radius: 19px; width: 66px; height: 66px;
+  box-shadow: inset 0 2px 1px rgba(255,255,255,.55), inset 0 -4px 10px rgba(0,0,0,.25), 0 10px 22px rgba(0,10,30,.35), 0 0 0 1px rgba(255,255,255,.18); }
+.mode-ico::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(120% 70% at 30% 0%, rgba(255,255,255,.45), rgba(255,255,255,0) 55%); pointer-events: none; }
+.mode-ico svg { width: 86%; height: 86%; overflow: visible; filter: drop-shadow(0 4px 5px rgba(0,0,0,.28)); }
+.dive .mode-ico { background: radial-gradient(130% 110% at 30% 15%, #6cc8ff, #1b6fd6 60%, #0d3f8e); }
+.endless .mode-ico { background: radial-gradient(130% 110% at 30% 15%, #7ff3dd, #17a58e 60%, #08584f); }
+.partyc .mode-ico { background: radial-gradient(130% 110% at 30% 15%, #8fe6ff, #2a8fd0 60%, #134f86); }
+.partyc .mode-ico svg { --pf1: #ffd25e; --pf2: #ffae35; --spine: #e08a12; width: 100%; height: 100%; }
+
+/* 3D logo + extruded title */
+.logo-fish { width: 112px; filter: drop-shadow(0 14px 20px rgba(0,30,70,.45)); }
+h1 { color: #fff; text-shadow: 0 1px 0 #d6eef8, 0 2px 0 #bfe1f0, 0 3px 0 #a6d2e8, 0 4px 0 #8ec2de, 0 5px 0 #78b2d3, 0 6px 0 #649fc4, 0 7px 2px rgba(0,20,50,.35), 0 12px 24px rgba(0,20,50,.4); }
+h1 span { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: #7ff3d6;
+  text-shadow: 0 1px 0 #66e0c3, 0 2px 0 #4ccdb0, 0 3px 0 #38b99d, 0 4px 0 #27a58a, 0 5px 0 #1a9078, 0 6px 0 #117b67, 0 7px 2px rgba(0,30,30,.35), 0 12px 24px rgba(0,20,50,.4); }
+
+/* glossy 3D avatars + puffer */
+.seat .av, .winner-av { background-image: radial-gradient(circle at 32% 26%, rgba(255,255,255,.75), rgba(255,255,255,0) 34%), radial-gradient(circle at 70% 82%, rgba(0,0,0,.38), rgba(0,0,0,0) 62%) !important;
+  text-shadow: 0 2px 3px rgba(0,0,0,.35); border: 2px solid rgba(255,255,255,.55); }
+.puffer svg, .hero-puffer { filter: drop-shadow(0 18px 18px rgba(0,20,40,.35)); }
+.gauge-sub svg { width: 44px; height: 36px; margin-left: -6px; }
+.tier-card { box-shadow: inset 0 2px 0 rgba(255,255,255,.6), inset 0 -6px 16px rgba(0,0,0,.18), 0 22px 50px rgba(0,0,0,.32); border: 1px solid rgba(255,255,255,.45); }
+.tier-card::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 50%; background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0)); pointer-events: none; }
+.tchip, .alt .ans, .used span { box-shadow: inset 0 1px 0 rgba(255,255,255,.65), inset 0 -2px 4px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.18); }
+.clock-bg { stroke: rgba(255,255,255,.16); }
+@media (max-width: 520px) { .mode-ico { width: 56px; height: 56px; border-radius: 16px; } .logo-fish { width: 88px; } }
+</style>
+</head>
+<body>
+<canvas id="sea"></canvas>
+<div id="flash"></div>
+
+<!-- ============ HOME ============ -->
+<section class="screen" id="home">
+  <div class="home-wrap">
+    <div class="logo">
+      <svg class="logo-fish" viewBox="0 0 160 110" aria-hidden="true"><use href="#fish3d"/></svg>
+      <h1>Rare<span>Reef</span></h1>
+    </div>
+    <p class="tag">Name the answer nobody else thinks of. The rarer it is, the deeper you dive.</p>
+
+    <div class="mode-grid">
+      <button class="mode-card dive" id="goDive">
+        <div class="mode-ico"><svg viewBox="0 0 100 80"><use href="#sub3d"/></svg></div>
+        <div class="mode-txt"><b>Dive</b><span>7 prompts · 25 s each · rare answers sink you deeper</span></div>
+        <div class="mode-badge">Unlimited</div>
+      </button>
+      <button class="mode-card endless" id="goEndless">
+        <div class="mode-ico"><svg viewBox="0 0 100 100"><use href="#bubbles3d"/></svg></div>
+        <div class="mode-txt"><b>Endless Dive</b><span>Keep going until you run out of air (3 misses)</span></div>
+        <div class="mode-badge">No limit</div>
+      </button>
+      <button class="mode-card partyc" id="goParty">
+        <div class="mode-ico"><svg viewBox="0 0 200 200"><use href="#pufferBig"/></svg></div>
+        <div class="mode-txt"><b>Puffer Panic</b><span>Pass the puffer before it pops · 2–8 players</span></div>
+        <div class="mode-badge hot">Party</div>
+      </button>
+    </div>
+
+    <div class="packs" id="packs"></div>
+
+    <div class="stats" id="stats"></div>
+    <div class="tiers-legend" id="legend"></div>
+    <button class="link" id="howBtn">How scoring works</button>
+  </div>
+</section>
+
+<!-- ============ DIVE ============ -->
+<section class="screen" id="dive">
+  <div class="gauge" id="gauge"><div class="gauge-track" id="gaugeTrack"></div><div class="gauge-sub" id="gaugeSub"><svg viewBox="0 0 100 80"><use href="#sub3d"/></svg></div></div>
+  <div class="dive-wrap">
+    <div class="topbar">
+      <button class="icon-btn" id="diveBack" aria-label="Back">←</button>
+      <div class="round" id="roundLbl">1 / 7</div>
+      <div class="depth" id="depthLbl">0 m</div>
+    </div>
+    <div class="lives" id="lives"></div>
+    <div class="prompt-card" id="promptCard">
+      <div class="chip" id="packChip">Geography</div>
+      <div class="prompt" id="promptTxt">Name a country</div>
+      <div class="timer"><div class="timer-fill" id="timerFill"></div><span id="timerTxt">25</span></div>
+      <form id="answerForm" autocomplete="off">
+        <input id="answer" type="text" placeholder="Type a rare answer…" maxlength="60" autocapitalize="off" spellcheck="false">
+        <button class="go" type="submit">Dive ↓</button>
+      </form>
+      <div class="msg" id="msg"></div>
+      <button class="link small" id="passBtn">Pass</button>
+    </div>
+    <div class="reveal" id="reveal"></div>
+  </div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section class="screen" id="results">
+  <div class="res-wrap" id="resWrap"></div>
+</section>
+
+<!-- ============ PARTY SETUP ============ -->
+<section class="screen" id="setup">
+  <div class="setup-wrap">
+    <div class="topbar"><button class="icon-btn" id="setupBack" aria-label="Back">←</button><div class="round">Puffer Panic</div><div></div></div>
+    <div class="setup-hero"><svg viewBox="0 0 200 200" class="hero-puffer"><use href="#pufferBig"/></svg>
+      <div><h2>Pass the puffer.</h2><p>Name an answer that fits the category to pass it on. No repeats. If it pops while you hold it, you lose a heart. Rare answers fill your meter for a bonus heart. Last one floating wins.</p></div></div>
+    <div class="seg big" id="pmode"><button data-v="bots" class="on">vs Bots</button><button data-v="local">Pass &amp; Play</button></div>
+    <div id="botsCfg">
+      <label class="fld">Your name<input id="youName" maxlength="14" placeholder="You"></label>
+      <div class="row2"><span>Bots</span><div class="seg" id="botCount"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3" class="on">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="7">7</button></div></div>
+      <div class="row2"><span>Bot level</span><div class="seg" id="botLevel"><button data-v="easy">Easy</button><button data-v="normal" class="on">Normal</button><button data-v="hard">Hard</button></div></div>
+    </div>
+    <div id="localCfg" hidden>
+      <div class="plist" id="plist"></div>
+      <button class="link" id="addP">+ Add player</button>
+    </div>
+    <div class="row2"><span>Hearts</span><div class="seg" id="lifeSeg"><button data-v="1">1</button><button data-v="2" class="on">2</button><button data-v="3">3</button><button data-v="5">5</button></div></div>
+    <div class="row2"><span>Speed</span><div class="seg" id="speedSeg"><button data-v="chill">Chill</button><button data-v="normal" class="on">Normal</button><button data-v="frantic">Frantic</button></div></div>
+    <button class="cta" id="wake">🐡 Wake the puffer</button>
+  </div>
+</section>
+
+<!-- ============ PARTY ============ -->
+<section class="screen" id="party">
+  <div class="party-top">
+    <button class="icon-btn" id="partyBack" aria-label="Leave">←</button>
+    <div class="cat-banner"><div class="chip" id="pPack">Food</div><div class="cat-q" id="pPrompt">Name a fruit</div><div class="cat-used" id="pUsed">0 said</div></div>
+    <button class="icon-btn" id="muteBtn" aria-label="Sound">🔊</button>
+  </div>
+  <div class="arena" id="arena">
+    <div class="ring" id="ring"></div>
+    <div class="puffer-wrap" id="pufferWrap">
+      <svg class="clock" viewBox="0 0 220 220"><circle cx="110" cy="110" r="100" class="clock-bg"/><circle cx="110" cy="110" r="100" class="clock-fg" id="clockFg"/></svg>
+      <div class="puffer" id="puffer"><svg viewBox="0 0 200 200"><use href="#pufferBig"/></svg></div>
+      <div class="pointer" id="pointer"></div>
+      <div class="pop-txt" id="popTxt">POP!</div>
+    </div>
+  </div>
+  <div class="party-bottom">
+    <div class="turn-lbl" id="turnLbl">Your turn</div>
+    <form id="pForm" autocomplete="off"><input id="pInput" maxlength="60" placeholder="Name one…" autocapitalize="off" spellcheck="false"><button class="go" type="submit">Pass →</button></form>
+    <div class="pmsg" id="pMsg"></div>
+    <div class="used" id="usedList"></div>
+  </div>
+</section>
+
+<!-- ============ MODAL ============ -->
+<div class="modal" id="modal" hidden><div class="modal-card" id="modalCard"></div></div>
+
+<!-- ============ SVG SYMBOLS ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- shared 3D lighting for the puffer (colour comes from CSS vars on the body underneath) -->
+    <radialGradient id="pfShade" cx=".36" cy=".3" r=".78"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".28" stop-color="#fff" stop-opacity=".08"/><stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#3a0d00" stop-opacity=".42"/></radialGradient>
+    <radialGradient id="pfSpec" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glassEye" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#fff"/><stop offset=".65" stop-color="#eef6ff"/><stop offset="1" stop-color="#9bb2c8"/></radialGradient>
+    <radialGradient id="irisDeep" cx=".42" cy=".38" r=".62"><stop offset="0" stop-color="#3d6590"/><stop offset=".6" stop-color="#0d1f36"/><stop offset="1" stop-color="#02060d"/></radialGradient>
+    <linearGradient id="spineShade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity=".25"/></linearGradient>
+    <filter id="softBlur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="softBlur2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.4"/></filter>
+
+    <!-- realistic glossy fish logo -->
+    <linearGradient id="f3body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9fdff"/><stop offset=".3" stop-color="#43d0f6"/><stop offset=".72" stop-color="#157bd8"/><stop offset="1" stop-color="#0a3a86"/></linearGradient>
+    <linearGradient id="f3tail" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8af5ff"/><stop offset=".5" stop-color="#2a9fe8"/><stop offset="1" stop-color="#0b3d92"/></linearGradient>
+    <linearGradient id="f3fin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffef9a"/><stop offset=".55" stop-color="#ffb43d"/><stop offset="1" stop-color="#e46a12"/></linearGradient>
+    <radialGradient id="f3spec" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <clipPath id="f3clip"><path d="M12 56 C28 21 80 13 113 36 C121 41 124 48 124 55 C124 62 121 68 113 73 C80 96 28 90 12 56Z"/></clipPath>
+    <symbol id="fish3d" viewBox="0 0 160 110">
+      <ellipse cx="74" cy="101" rx="54" ry="5.5" fill="#00142b" opacity=".45" filter="url(#softBlur)"/>
+      <path d="M116 55 C130 40 140 28 153 18 C150 36 148 46 150 55 C148 64 150 74 153 92 C140 82 130 70 116 55Z" fill="url(#f3tail)"/>
+      <path d="M126 52 L150 26 M127 55 L150 55 M126 58 L150 84" stroke="#fff" stroke-opacity=".28" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M48 27 C58 4 92 2 108 32 C88 24 66 22 48 27Z" fill="url(#f3fin)"/>
+      <path d="M58 22 C66 12 82 10 96 20" stroke="#fff" stroke-opacity=".5" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M60 84 C68 98 86 100 96 88 C84 88 72 87 60 84Z" fill="url(#f3fin)"/>
+      <path d="M12 56 C28 21 80 13 113 36 C121 41 124 48 124 55 C124 62 121 68 113 73 C80 96 28 90 12 56Z" fill="url(#f3body)"/>
+      <g clip-path="url(#f3clip)">
+        <g fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="1.2">
+          <path d="M60 30 q6 8 0 16 q6 8 0 16 q6 8 0 16"/><path d="M72 28 q6 8 0 16 q6 8 0 16 q6 8 0 16"/><path d="M84 30 q6 8 0 16 q6 8 0 16 q6 8 0 16"/><path d="M96 34 q6 8 0 16 q6 8 0 16"/>
+        </g>
+        <path d="M58 22 C52 40 54 70 62 92 L74 92 C66 70 64 42 70 20Z" fill="#ff9a3d" opacity=".92"/>
+        <path d="M58 22 C52 40 54 70 62 92 L64 92 C57 70 56 42 61 21Z" fill="#fff" opacity=".85"/>
+        <path d="M70 20 C64 42 66 70 74 92 L76 92 C68 70 67 42 73 20Z" fill="#fff" opacity=".85"/>
+        <ellipse cx="66" cy="84" rx="56" ry="13" fill="#fff" opacity=".22"/>
+        <ellipse cx="70" cy="96" rx="70" ry="14" fill="#021a44" opacity=".45" filter="url(#softBlur)"/>
+        <ellipse cx="56" cy="34" rx="40" ry="10" fill="url(#f3spec)" opacity=".85" transform="rotate(-10 56 34)"/>
+      </g>
+      <path d="M20 46 C36 26 78 20 108 36" stroke="#fff" stroke-opacity=".65" stroke-width="1.6" fill="none" stroke-linecap="round" filter="url(#softBlur2)"/>
+      <path d="M44 44 C40 52 40 62 46 70" stroke="#0a3a86" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M78 58 C88 54 100 58 104 68 C94 70 84 68 78 58Z" fill="url(#f3fin)" opacity=".95"/>
+      <circle cx="33" cy="49" r="10.5" fill="url(#glassEye)"/>
+      <circle cx="31.5" cy="50" r="6.6" fill="url(#irisDeep)"/>
+      <circle cx="31" cy="50.5" r="3.4" fill="#000"/>
+      <circle cx="29" cy="47" r="2.3" fill="#fff"/><circle cx="34" cy="53" r="1" fill="#fff" opacity=".8"/>
+      <path d="M13 60 C17 62 20 62 23 60" stroke="#0a3a86" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- glossy yellow submarine -->
+    <linearGradient id="subHull" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6b8"/><stop offset=".28" stop-color="#ffd84a"/><stop offset=".7" stop-color="#f29a14"/><stop offset="1" stop-color="#a65800"/></linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#b9c6d2"/><stop offset=".55" stop-color="#7f8e9c"/><stop offset="1" stop-color="#dfe7ee"/></linearGradient>
+    <radialGradient id="porthole" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#c8f6ff"/><stop offset=".5" stop-color="#2aa7e8"/><stop offset="1" stop-color="#06305e"/></radialGradient>
+    <symbol id="sub3d" viewBox="0 0 100 80">
+      <ellipse cx="50" cy="73" rx="34" ry="3.5" fill="#001426" opacity=".45" filter="url(#softBlur2)"/>
+      <rect x="54" y="8" width="5" height="16" rx="2.5" fill="url(#metal)"/><rect x="54" y="6" width="13" height="5" rx="2.5" fill="url(#metal)"/>
+      <path d="M36 32 C36 22 40 18 50 18 L60 18 C68 18 70 24 70 32Z" fill="url(#subHull)"/>
+      <path d="M40 22 C44 19 56 19 64 21" stroke="#fff" stroke-opacity=".7" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M86 46 L96 36 L96 60 Z" fill="url(#metal)"/>
+      <ellipse cx="84" cy="48" rx="3" ry="9" fill="url(#metal)"/>
+      <rect x="6" y="28" width="82" height="40" rx="20" fill="url(#subHull)"/>
+      <ellipse cx="40" cy="36" rx="30" ry="6" fill="url(#f3spec)" opacity=".8"/>
+      <rect x="6" y="56" width="82" height="12" rx="6" fill="#7a3d00" opacity=".25" filter="url(#softBlur2)"/>
+      <g><circle cx="26" cy="47" r="8.5" fill="url(#metal)"/><circle cx="26" cy="47" r="6" fill="url(#porthole)"/><ellipse cx="23.8" cy="44.6" rx="2.4" ry="1.6" fill="#fff" opacity=".9"/></g>
+      <g><circle cx="47" cy="47" r="8.5" fill="url(#metal)"/><circle cx="47" cy="47" r="6" fill="url(#porthole)"/><ellipse cx="44.8" cy="44.6" rx="2.4" ry="1.6" fill="#fff" opacity=".9"/></g>
+      <g><circle cx="68" cy="47" r="8.5" fill="url(#metal)"/><circle cx="68" cy="47" r="6" fill="url(#porthole)"/><ellipse cx="65.8" cy="44.6" rx="2.4" ry="1.6" fill="#fff" opacity=".9"/></g>
+      <g fill="#a65800" opacity=".55"><circle cx="12" cy="40" r="1.2"/><circle cx="12" cy="56" r="1.2"/><circle cx="80" cy="38" r="1.2"/><circle cx="80" cy="58" r="1.2"/></g>
+    </symbol>
+
+    <!-- glass bubbles -->
+    <radialGradient id="bub" cx=".5" cy=".55" r=".55"><stop offset="0" stop-color="#e9fffb" stop-opacity=".08"/><stop offset=".7" stop-color="#9ff3ff" stop-opacity=".28"/><stop offset=".92" stop-color="#e6ffff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity=".95"/></radialGradient>
+    <symbol id="bubbles3d" viewBox="0 0 100 100">
+      <g><circle cx="40" cy="58" r="28" fill="url(#bub)"/><ellipse cx="30" cy="44" rx="10" ry="6" fill="#fff" opacity=".85" transform="rotate(-35 30 44)"/><path d="M52 78 A22 22 0 0 0 63 63" stroke="#fff" stroke-width="2" stroke-opacity=".6" fill="none" stroke-linecap="round"/><ellipse cx="44" cy="72" rx="14" ry="5" fill="#bff7ff" opacity=".25"/></g>
+      <g><circle cx="74" cy="34" r="17" fill="url(#bub)"/><ellipse cx="68" cy="26" rx="6" ry="3.6" fill="#fff" opacity=".85" transform="rotate(-35 68 26)"/><path d="M82 46 A13 13 0 0 0 88 37" stroke="#fff" stroke-width="1.6" stroke-opacity=".6" fill="none" stroke-linecap="round"/></g>
+      <g><circle cx="78" cy="76" r="10" fill="url(#bub)"/><ellipse cx="74.5" cy="71.5" rx="3.6" ry="2.2" fill="#fff" opacity=".85" transform="rotate(-35 74.5 71.5)"/></g>
+      <g><circle cx="26" cy="20" r="7" fill="url(#bub)"/><ellipse cx="23.5" cy="17" rx="2.4" ry="1.5" fill="#fff" opacity=".85" transform="rotate(-35 23.5 17)"/></g>
+    </symbol>
+
+        <symbol id="pufferBig" viewBox="0 0 200 200">
+      <g class="spines" style="fill:var(--spine,#e08a12)" stroke="rgba(60,20,0,.25)" stroke-width="1" stroke-linejoin="round">
+        <path d="M100 18 L108 46 L92 46Z"/><path d="M100 182 L92 154 L108 154Z"/><path d="M18 100 L46 92 L46 108Z"/><path d="M182 100 L154 108 L154 92Z"/>
+        <path d="M42 42 L66 58 L58 66Z"/><path d="M158 158 L134 142 L142 134Z"/><path d="M158 42 L142 66 L134 58Z"/><path d="M42 158 L58 134 L66 142Z"/>
+        <path d="M68 24 L82 50 L68 54Z"/><path d="M132 24 L132 54 L118 50Z"/><path d="M24 68 L54 68 L50 82Z"/><path d="M24 132 L50 118 L54 132Z"/>
+        <path d="M176 68 L150 82 L146 68Z"/><path d="M176 132 L146 132 L150 118Z"/><path d="M68 176 L68 146 L82 150Z"/><path d="M132 176 L118 150 L132 146Z"/>
+      </g>
+      <path d="M150 100 L186 76 L180 100 L186 124Z" style="fill:var(--pf2,#ffb52e)"/>
+      <ellipse cx="104" cy="168" rx="50" ry="7" fill="#001a2e" opacity=".35" filter="url(#softBlur)"/><circle cx="100" cy="100" r="58" style="fill:var(--pf1,#ffd25e)"/>
+      <ellipse cx="100" cy="130" rx="42" ry="22" fill="#fff6d6" opacity=".7"/><circle cx="100" cy="100" r="58" fill="url(#pfShade)"/><ellipse cx="80" cy="66" rx="22" ry="12" fill="url(#pfSpec)" transform="rotate(-30 80 66)"/><path d="M58 76 A50 50 0 0 1 96 46" stroke="#fff" stroke-opacity=".55" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#softBlur2)"/>
+      <g fill="#c96d00" opacity=".45"><circle cx="78" cy="70" r="4"/><circle cx="96" cy="62" r="3.5"/><circle cx="114" cy="68" r="4"/><circle cx="128" cy="80" r="3"/><circle cx="70" cy="88" r="3"/></g>
+      <ellipse cx="112" cy="104" rx="16" ry="11" style="fill:var(--pf2,#ffb52e)" transform="rotate(-20 112 104)" class="fin"/>
+      <circle cx="74" cy="92" r="13" fill="url(#glassEye)"/><circle cx="76" cy="93" r="7.5" fill="url(#irisDeep)" class="pupil"/><circle cx="79" cy="90" r="2.6" fill="#fff"/>
+      <circle cx="104" cy="88" r="11" fill="url(#glassEye)"/><circle cx="106" cy="89" r="6.5" fill="url(#irisDeep)" class="pupil"/><circle cx="108.5" cy="86.5" r="2.2" fill="#fff"/>
+      <ellipse cx="60" cy="112" rx="7" ry="6" fill="#e2563b" class="mouth"/>
+      <ellipse cx="66" cy="104" rx="7" ry="3.5" fill="#ff8a7a" opacity=".55"/>
+    </symbol>
+    <symbol id="pufferMini" viewBox="0 0 64 64"><circle cx="32" cy="33" r="20" fill="#ffc94a"/><g fill="#e08a12"><path d="M32 6l3 9h-6z"/><path d="M32 60l-3-9h6z"/><path d="M6 33l9-3v6z"/><path d="M14 14l8 5-3 3z"/><path d="M50 52l-8-5 3-3z"/><path d="M14 52l5-8 3 3z"/></g><path d="M50 33l10-8-2 8 2 8z" fill="#ffb52e"/><circle cx="26" cy="29" r="5" fill="#fff"/><circle cx="27" cy="29.5" r="3" fill="#102033"/><circle cx="21" cy="39" r="3" fill="#e2563b"/></symbol>
+  </defs>
+</svg>
+
+<script>// Answer bank. Each entry: [pack, prompt, tier1, tier2, tier3, tier4, tier5, decoys]
+// tier1 = most common (10 pts) ... tier5 = legendary (100 pts); decoys = "too clever" picks (15 pts)
+// Items are comma separated; "/" separates accepted spellings (first one is shown).
+const BANK_RAW = [
+["Geography","Name a country",
+"United States/usa/us/america/united states of america, Canada, Mexico, Brazil, France, Germany, China, Japan, India, Russia, Australia, Italy, Spain, United Kingdom/uk/england/britain/great britain",
+"Argentina, Egypt, South Africa, Nigeria, Kenya, Ireland, Portugal, Netherlands/holland, Belgium, Switzerland, Sweden, Norway, Denmark, Finland, Poland, Greece, Turkey/turkiye, Iran, Iraq, Israel, Saudi Arabia, Pakistan, Indonesia, Thailand, Vietnam, Philippines, South Korea/korea, North Korea, New Zealand, Chile, Peru, Colombia, Cuba, Jamaica, Ukraine, Austria, Scotland, Uzbekistan, Kazakhstan, Afghanistan, Morocco, Ethiopia",
+"Venezuela, Ecuador, Bolivia, Uruguay, Paraguay, Panama, Costa Rica, Guatemala, Honduras, Nicaragua, El Salvador, Haiti, Dominican Republic, Puerto Rico, Iceland, Czech Republic/czechia, Slovakia, Hungary, Romania, Bulgaria, Serbia, Croatia, Bosnia and Herzegovina/bosnia, Slovenia, Albania, Lithuania, Latvia, Estonia, Belarus, Moldova, Georgia, Armenia, Azerbaijan, Syria, Lebanon, Jordan, Kuwait, Qatar, United Arab Emirates/uae, Oman, Yemen, Bangladesh, Sri Lanka, Nepal, Myanmar/burma, Cambodia, Laos, Malaysia, Singapore, Mongolia, Taiwan, Tajikistan, Kyrgyzstan, Turkmenistan, Algeria, Tunisia, Libya, Sudan, Ghana, Senegal, Cameroon, Uganda, Tanzania, Rwanda, Somalia, Angola, Zimbabwe, Zambia, Mozambique, Madagascar, Congo, Democratic Republic of the Congo/drc, Ivory Coast/cote divoire, Wales, Luxembourg, Monaco, Cyprus, Malta",
+"Belize, Guyana, Suriname, Trinidad and Tobago, Bahamas, Barbados, Grenada, Saint Lucia, Dominica, Antigua and Barbuda, Saint Kitts and Nevis, Saint Vincent and the Grenadines, North Macedonia/macedonia, Montenegro, Kosovo, Andorra, San Marino, Bahrain, Bhutan, Maldives, Brunei, East Timor/timor leste, Papua New Guinea, Fiji, Samoa, Tonga, Vanuatu, Solomon Islands, Mali, Niger, Chad, Burkina Faso, Mauritania, Guinea, Guinea-Bissau, Sierra Leone, Liberia, Togo, Benin, Gabon, Equatorial Guinea, Central African Republic, South Sudan, Eritrea, Djibouti, Burundi, Malawi, Botswana, Namibia, Lesotho, Eswatini/swaziland, Mauritius, Seychelles, Comoros, Cape Verde/cabo verde, Gambia, Sao Tome and Principe",
+"Palau, Nauru, Kiribati, Marshall Islands, Micronesia, Liechtenstein",
+"Vatican City/vatican/holy see, Tuvalu"],
+
+["Geography","Name a US state",
+"California, Texas, Florida, New York, Hawaii, Alaska, Ohio",
+"Washington, Oregon, Nevada, Arizona, Colorado, Utah, Illinois, Michigan, Georgia, Pennsylvania, New Jersey, Massachusetts, Virginia, North Carolina, Tennessee, Louisiana, Kentucky",
+"Alabama, Mississippi, Arkansas, Oklahoma, Kansas, Missouri, Iowa, Minnesota, Wisconsin, Indiana, South Carolina, Maryland, Connecticut, Maine, New Mexico, Idaho, Montana",
+"Nebraska, North Dakota, South Dakota, Wyoming, West Virginia, Vermont, New Hampshire",
+"Delaware, Rhode Island",
+""],
+
+["Geography","Name a capital city",
+"London, Paris, Tokyo, Washington/washington dc, Berlin, Rome, Madrid, Moscow, Beijing",
+"Ottawa, Canberra, Mexico City, Cairo, New Delhi/delhi, Seoul, Bangkok, Athens, Dublin, Lisbon, Amsterdam, Brussels, Vienna, Stockholm, Oslo, Copenhagen, Helsinki, Warsaw, Prague, Budapest, Buenos Aires, Lima, Santiago, Tashkent, Ankara, Tehran, Baghdad, Kyiv/kiev, Edinburgh, Havana",
+"Brasilia, Bogota, Caracas, Quito, Montevideo, Nairobi, Pretoria, Abuja, Riyadh, Doha, Abu Dhabi, Islamabad, Kabul, Jakarta, Manila, Hanoi, Kuala Lumpur, Singapore, Wellington, Bern, Bucharest, Sofia, Belgrade, Zagreb, Reykjavik, Astana/nur-sultan, Bishkek, Dushanbe, Ashgabat, Baku, Tbilisi, Yerevan, Minsk, Vilnius, Riga, Tallinn, Beirut, Damascus, Amman, Jerusalem, Kuwait City, Muscat, Taipei, Kathmandu, Dhaka, Ulaanbaatar, Phnom Penh, Rabat, Algiers, Tunis, Tripoli, Addis Ababa, Accra, Dakar, Kampala, Kinshasa, Luanda, Harare, Lusaka, Cardiff, Belfast",
+"Canberra, La Paz, Sucre, Asuncion, Panama City, San Jose, Managua, Tegucigalpa, San Salvador, Guatemala City, Kingston, Santo Domingo, Port-au-Prince, Nassau, Bridgetown, Georgetown, Paramaribo, Ljubljana, Bratislava, Skopje, Podgorica, Tirana, Sarajevo, Pristina, Chisinau, Valletta, Nicosia, Luxembourg, Andorra la Vella, Manama, Sanaa, Thimphu, Male, Naypyidaw, Vientiane, Bandar Seri Begawan, Dili, Port Moresby, Suva, Antananarivo, Maputo, Windhoek, Gaborone, Maseru, Mbabane, Lilongwe, Dodoma, Kigali, Bujumbura, Mogadishu, Djibouti, Asmara, Khartoum, Juba, Ndjamena, Niamey, Bamako, Ouagadougou, Nouakchott, Conakry, Freetown, Monrovia, Yamoussoukro, Lome, Porto-Novo, Yaounde, Libreville, Malabo, Bangui, Brazzaville, Praia, Banjul, Bissau, Victoria, Port Louis, Moroni",
+"Vaduz, San Marino, Monaco, Ngerulmud, Yaren, Tarawa, Majuro, Palikir, Funafuti, Apia, Nukualofa, Port Vila, Honiara, Castries, Roseau, Basseterre, Kingstown, St. Johns, St. Georges",
+"Vatican City"],
+
+["Science","Name a chemical element",
+"Oxygen, Hydrogen, Carbon, Gold, Iron, Helium, Nitrogen, Silver, Copper",
+"Sodium, Chlorine, Calcium, Potassium, Lithium, Neon, Uranium, Aluminium/aluminum, Zinc, Lead, Mercury, Platinum, Titanium, Magnesium, Sulfur/sulphur, Silicon, Phosphorus, Nickel, Tin, Plutonium, Iodine, Fluorine, Argon, Radium",
+"Cobalt, Chromium, Manganese, Tungsten, Radon, Krypton, Xenon, Boron, Beryllium, Arsenic, Bromine, Barium, Strontium, Cesium/caesium, Bismuth, Cadmium, Palladium, Iridium, Osmium, Thorium, Francium, Polonium, Selenium, Antimony, Gallium, Germanium, Vanadium, Molybdenum",
+"Scandium, Yttrium, Zirconium, Niobium, Technetium, Ruthenium, Rhodium, Indium, Tellurium, Lanthanum, Cerium, Praseodymium, Neodymium, Promethium, Samarium, Europium, Gadolinium, Terbium, Dysprosium, Holmium, Erbium, Thulium, Ytterbium, Lutetium, Hafnium, Tantalum, Rhenium, Thallium, Astatine, Actinium, Protactinium, Neptunium, Americium, Curium, Berkelium, Californium, Einsteinium, Fermium, Rubidium",
+"Mendelevium, Nobelium, Lawrencium, Rutherfordium, Dubnium, Seaborgium, Bohrium, Hassium, Meitnerium, Darmstadtium, Roentgenium, Copernicium, Nihonium, Flerovium, Moscovium, Livermorium, Tennessine, Oganesson",
+"!Unobtainium"],
+
+["Food","Name a fruit",
+"Apple, Banana, Orange, Strawberry, Grape, Watermelon, Mango, Pineapple",
+"Pear, Peach, Cherry, Lemon, Lime, Blueberry, Raspberry, Kiwi, Coconut, Plum, Apricot, Pomegranate, Grapefruit, Melon, Cantaloupe, Papaya, Fig, Avocado, Tomato, Blackberry, Tangerine, Nectarine, Cranberry",
+"Passion fruit, Guava, Lychee/litchi, Persimmon, Date, Clementine, Mandarin, Honeydew, Gooseberry, Currant, Elderberry, Mulberry, Quince, Starfruit/carambola, Jackfruit, Kumquat, Plantain, Olive, Boysenberry, Cherimoya",
+"Rambutan, Mangosteen, Longan, Loquat, Feijoa, Tamarind, Soursop/guanabana, Sapodilla, Ackee, Breadfruit, Salak/snake fruit, Pitaya, Physalis/ground cherry, Medlar, Pawpaw, Yuzu, Bergamot, Huckleberry, Lingonberry, Cloudberry, Jabuticaba, Rose apple, Pomelo, Ugli fruit, Marionberry, Damson, Greengage, Miracle fruit, Horned melon/kiwano, Bilberry",
+"Salmonberry, Jambul, Mamey sapote, Cupuacu, Bael, Buddha's hand, Wood apple",
+"Durian, Dragon fruit"],
+
+["Food","Name a vegetable",
+"Carrot, Broccoli, Potato, Lettuce, Onion, Cucumber, Tomato, Spinach, Corn",
+"Cabbage, Cauliflower, Celery, Peas, Pepper/bell pepper, Garlic, Pumpkin, Zucchini/courgette, Eggplant/aubergine, Mushroom, Green beans/beans, Sweet potato, Asparagus, Kale, Radish, Beetroot/beet",
+"Brussels sprouts, Artichoke, Leek, Turnip, Parsnip, Squash, Okra, Shallot, Chili/chilli, Bok choy/pak choi, Arugula/rocket, Chard, Watercress, Fennel, Butternut squash, Yam, Edamame, Snow peas",
+"Kohlrabi, Rutabaga/swede, Celeriac, Jicama, Daikon, Taro, Cassava/yuca, Endive, Radicchio, Collard greens, Mustard greens, Bamboo shoots, Water chestnut, Lotus root, Salsify, Jerusalem artichoke/sunchoke, Romanesco, Tomatillo, Chayote, Bitter melon, Fiddlehead, Samphire, Burdock, Okra",
+"Cardoon, Skirret, Oca, Ulluco, Good King Henry",
+"Rhubarb"],
+
+["Animals","Name a mammal",
+"Dog, Cat, Lion, Elephant, Tiger, Horse, Cow, Bear, Monkey, Whale",
+"Giraffe, Zebra, Wolf, Fox, Rabbit, Mouse, Rat, Pig, Sheep, Goat, Deer, Kangaroo, Koala, Panda, Gorilla, Chimpanzee, Dolphin, Bat, Squirrel, Hippopotamus/hippo, Rhinoceros/rhino, Camel, Cheetah, Leopard, Human",
+"Otter, Beaver, Raccoon, Skunk, Hedgehog, Hamster, Guinea pig, Moose, Elk, Bison, Buffalo, Seal, Walrus, Sea lion, Platypus, Sloth, Armadillo, Anteater, Orangutan, Lemur, Jaguar, Puma/cougar/mountain lion, Lynx, Hyena, Meerkat, Badger, Weasel, Ferret, Mole, Porcupine, Llama, Alpaca, Donkey, Mule, Yak, Reindeer, Polar bear, Wombat, Possum/opossum, Chipmunk, Mongoose",
+"Okapi, Tapir, Pangolin, Aardvark, Capybara, Chinchilla, Manatee, Dugong, Narwhal, Beluga, Wolverine, Ocelot, Serval, Caracal, Fossa, Binturong, Kinkajou, Coati, Quokka, Numbat, Echidna, Bilby, Wallaby, Tasmanian devil, Gibbon, Mandrill, Baboon, Marmoset, Tarsier, Aye-aye, Gazelle, Impala, Wildebeest/gnu, Oryx, Ibex, Chamois, Musk ox, Saiga, Vicuna, Guanaco, Shrew, Vole, Lemming, Gerbil, Dormouse, Marmot, Prairie dog, Pika, Mink, Stoat, Marten, Dingo, Jackal, Coyote, Red panda",
+"Saola, Solenodon, Desman, Babirusa, Hyrax, Dik-dik, Gerenuk, Bongo, Zorilla, Colugo, Olinguito, Takin, Markhor, Chevrotain, Springhare",
+"Platypus"],
+
+["Animals","Name a bird",
+"Eagle, Parrot, Penguin, Owl, Chicken, Pigeon, Duck, Flamingo",
+"Crow, Robin, Sparrow, Swan, Goose, Turkey, Ostrich, Peacock, Hawk, Falcon, Seagull/gull, Hummingbird, Woodpecker, Toucan, Pelican, Blue jay, Cardinal, Dove, Vulture, Raven, Canary, Emu, Kiwi",
+"Heron, Stork, Crane, Albatross, Puffin, Kingfisher, Magpie, Starling, Finch, Wren, Swallow, Cuckoo, Macaw, Cockatoo, Budgie/budgerigar/parakeet, Quail, Pheasant, Partridge, Osprey, Condor, Kookaburra, Lovebird, Mockingbird, Nightingale, Lark, Ibis, Cormorant, Roadrunner, Grouse, Oriole",
+"Hoopoe, Shoebill, Secretary bird, Cassowary, Rhea, Kakapo, Kea, Lyrebird, Bowerbird, Hornbill, Quetzal, Spoonbill, Egret, Bittern, Booby, Frigatebird, Gannet, Petrel, Shearwater, Tern, Plover, Sandpiper, Curlew, Avocet, Lapwing, Nuthatch, Treecreeper, Warbler, Thrush, Blackbird, Bullfinch, Goldfinch, Chaffinch, Jackdaw, Rook, Jay, Kestrel, Harrier, Kite, Buzzard, Merlin, Grebe, Loon, Coot, Moorhen, Rail, Bustard, Sunbird, Weaver, Tanager",
+"Hoatzin, Potoo, Frogmouth, Oilbird, Dodo, Takahe, Kagu, Jabiru, Turaco, Trogon, Motmot, Jacana, Oxpecker",
+"Dodo"],
+
+["Animals","Name a sea creature",
+"Shark, Whale, Dolphin, Octopus, Jellyfish, Starfish/sea star, Crab, Turtle/sea turtle",
+"Squid, Lobster, Shrimp/prawn, Seal, Clownfish, Stingray, Eel, Seahorse, Tuna, Salmon, Orca/killer whale, Clam, Oyster, Coral, Sea urchin, Swordfish, Manta ray, Pufferfish/blowfish",
+"Barracuda, Marlin, Sardine, Anchovy, Mackerel, Cod, Halibut, Flounder, Sea lion, Walrus, Narwhal, Beluga, Manatee, Mussel, Scallop, Krill, Plankton, Anemone/sea anemone, Sea cucumber, Lionfish, Angelfish, Grouper, Snapper, Moray eel, Hammerhead shark, Cuttlefish, Nautilus, Barnacle",
+"Anglerfish, Lanternfish, Hagfish, Lamprey, Oarfish, Sunfish/mola, Coelacanth, Blobfish, Gulper eel, Viperfish, Dragonet, Wrasse, Parrotfish, Triggerfish, Goby, Blenny, Remora, Sea slug/nudibranch, Sea spider, Isopod, Copepod, Sea butterfly, Siphonophore, Box jellyfish, Portuguese man o war, Dugong, Vaquita, Sea otter, Leafy seadragon, Mantis shrimp, Horseshoe crab, Sea pen, Sea lily, Brittle star, Chiton, Abalone, Conch, Limpet",
+"Vampire squid, Dumbo octopus, Barreleye, Frilled shark, Goblin shark, Megamouth shark, Pyrosome, Yeti crab, Sea pig, Giant tube worm, Comb jelly, Glass sponge",
+"Kraken, Megalodon"],
+
+["Animals","Name a dog breed",
+"Labrador/labrador retriever, German Shepherd, Golden Retriever, Poodle, Bulldog, Chihuahua, Husky/siberian husky",
+"Beagle, Pug, Rottweiler, Dachshund, Boxer, Corgi, Shih Tzu, Pomeranian, Great Dane, Doberman, Border Collie, Yorkshire Terrier/yorkie, French Bulldog, Dalmatian, Pit Bull, Collie",
+"Cocker Spaniel, Maltese, Shiba Inu, Akita, Samoyed, Chow Chow, Greyhound, Whippet, Saint Bernard, Bernese Mountain Dog, Newfoundland, Mastiff, Bloodhound, Basset Hound, Jack Russell, Schnauzer, Bichon Frise, Cavalier King Charles Spaniel, Australian Shepherd, Weimaraner, Vizsla, Malamute/alaskan malamute, Pekingese, Havanese, Boston Terrier, Scottish Terrier, West Highland Terrier/westie, Afghan Hound, Shar Pei",
+"Basenji, Borzoi, Saluki, Rhodesian Ridgeback, Komondor, Puli, Kuvasz, Leonberger, Briard, Bouvier, Keeshond, Papillon, Lhasa Apso, Tibetan Mastiff, Xoloitzcuintli, Pharaoh Hound, Ibizan Hound, Bedlington Terrier, Dandie Dinmont, Airedale, Kerry Blue Terrier, Cane Corso, Dogo Argentino, Anatolian Shepherd, Great Pyrenees, Belgian Malinois, Catahoula, Coonhound, Plott Hound, Brittany, Pointer, Setter, Springer Spaniel, Alabai/central asian shepherd, Tosa",
+"Lagotto Romagnolo, Otterhound, Mudi, Azawakh, Norwegian Lundehund, Thai Ridgeback, Stabyhoun, Sloughi, Kooikerhondje",
+"Labradoodle"],
+
+["Tech","Name a car brand",
+"Toyota, Ford, BMW, Mercedes/mercedes-benz, Honda, Tesla, Ferrari, Chevrolet/chevy",
+"Audi, Volkswagen/vw, Nissan, Hyundai, Kia, Porsche, Lamborghini, Jeep, Dodge, Mazda, Subaru, Lexus, Volvo, Fiat, Jaguar, Land Rover, Range Rover, Bugatti, Rolls-Royce/rolls royce, Bentley, Mitsubishi, Peugeot, Renault",
+"Aston Martin, Maserati, McLaren, Alfa Romeo, Cadillac, Buick, GMC, Lincoln, Chrysler, Ram, Mini, Skoda, Seat, Citroen, Opel, Suzuki, Infiniti, Acura, Genesis, Lotus, Daewoo, Lada, BYD, Chery, Geely, Rivian, Lucid",
+"Pagani, Koenigsegg, Rimac, Bugatti, Polestar, Cupra, Dacia, Smart, Isuzu, Daihatsu, Tata, Mahindra, Proton, Perodua, Saab, Pontiac, Saturn, Oldsmobile, Plymouth, Hummer, DeLorean, Hispano Suiza, Morgan, TVR, Caterham, Spyker, Lancia, Abarth, Great Wall, Haval, Nio, Xpeng, Zeekr, Hongqi, Ravon, Moskvich, UAZ, GAZ",
+"Studebaker, Packard, Hudson, Nash, AMC, Trabant, Wartburg, Tucker, Bizzarrini, Vector, Saleen",
+""],
+
+["Tech","Name a programming language",
+"Python, JavaScript, Java, C++, C, HTML",
+"C#/c sharp, Ruby, PHP, Swift, Go/golang, Rust, Kotlin, TypeScript, SQL, R, Scratch, CSS, Lua, Perl, Assembly",
+"MATLAB, Dart, Scala, Haskell, Objective-C, Visual Basic/vb, Fortran, COBOL, Pascal, BASIC, Julia, Elixir, Erlang, Clojure, Lisp, Bash/shell, PowerShell, Groovy, F#",
+"OCaml, Prolog, Smalltalk, Ada, Delphi, Zig, Nim, Crystal, Haxe, Racket, Scheme, Elm, PureScript, Solidity, Verilog, VHDL, APL, Forth, Tcl, Logo, Simula, ALGOL, Hack, Raku, Mojo, Odin, V",
+"Brainfuck/brainf*ck, Malbolge, Whitespace, LOLCODE, Befunge, Piet, Chef, Shakespeare",
+"HTML"],
+
+["Tech","Name a web browser",
+"Chrome/google chrome, Safari, Firefox, Edge/microsoft edge",
+"Opera, Internet Explorer/ie, Brave",
+"Opera GX, Vivaldi, Tor/tor browser, DuckDuckGo, Samsung Internet, Arc, Chromium, Yandex Browser/yandex",
+"UC Browser, Maxthon, Waterfox, Pale Moon, SeaMonkey, Konqueror, Midori, Epiphany/gnome web, Puffin, Dolphin, LibreWolf, Floorp, Zen, Orion, Sleipnir, Kiwi, Ecosia, Comet, Dia, Ladybird",
+"Netscape/netscape navigator, Mosaic, Lynx, WorldWideWeb, Camino, Flock, Mozilla Suite",
+"Netscape"],
+
+["Tech","Name a social media app",
+"Instagram, TikTok, Facebook, Twitter/x, YouTube, Snapchat, WhatsApp",
+"Reddit, Pinterest, LinkedIn, Telegram, Discord, Threads, Tumblr, Twitch",
+"BeReal, Bluesky, Mastodon, WeChat, Weibo, VK/vkontakte, Quora, Clubhouse, Messenger, Signal, Viber, Line, Kik",
+"Myspace, Vine, Google Plus/google+, Periscope, Musical.ly, Friendster, Orkut, Odnoklassniki, Douyin, Xiaohongshu/rednote, Lemon8, Truth Social, Gab, Parler, Nextdoor, Goodreads, Letterboxd, Strava, Flickr, DeviantArt, Behance, Dribbble, Steemit, Mewe, Ello, Yik Yak, Tellonym, Lapse",
+"Bebo, Xanga, LiveJournal, Hi5, Path, Diaspora, Plurk, Hyves, Cyworld, Mixi",
+"Myspace"],
+
+["Sports","Name a sport",
+"Football/soccer, Basketball, Tennis, Baseball, Swimming, Volleyball, American Football",
+"Golf, Hockey/ice hockey, Cricket, Rugby, Boxing, Badminton, Table Tennis/ping pong, Cycling, Running/athletics, Gymnastics, Skiing, Surfing, Wrestling, Karate, Judo, Skateboarding, Snowboarding, Bowling, Formula 1/f1, Motorsport",
+"Handball, Water Polo, Lacrosse, Fencing, Archery, Rowing, Sailing, Diving, Equestrian, Taekwondo, Kickboxing, MMA, Triathlon, Climbing, Figure Skating, Darts, Snooker, Pool/billiards, Squash, Softball, Netball, Polo, Field Hockey, Curling, Bobsleigh, Luge, Biathlon, Weightlifting, Canoeing, Kayaking, Esports",
+"Sepak Takraw, Kabaddi, Hurling, Gaelic Football, Australian Rules Football/aussie rules, Jai Alai, Korfball, Bandy, Floorball, Pickleball, Padel, Racquetball, Croquet, Bocce, Petanque, Skeleton, Kendo, Sumo, Capoeira, Muay Thai, Sambo, Kurash, Buzkashi/kokpar, Underwater Hockey, Ultimate Frisbee, Disc Golf, Orienteering, Parkour, Bouldering, Canoe Polo, Kitesurfing, Wakeboarding, Rodeo, Hammer Throw, Pentathlon, Decathlon",
+"Chess Boxing, Shin Kicking, Toe Wrestling, Wife Carrying, Bossaball, Octopush, Cheese Rolling, Bog Snorkelling, Extreme Ironing, Quidditch/quadball, Zorbing, Calcio Storico",
+"Chess"],
+
+["Music","Name a musical instrument",
+"Piano, Guitar, Drums, Violin, Flute, Trumpet, Saxophone",
+"Cello, Bass/bass guitar, Clarinet, Harp, Ukulele, Keyboard, Trombone, Tuba, Harmonica, Xylophone, Accordion, Banjo, Recorder, Tambourine, Triangle, Organ",
+"Viola, Double Bass, Oboe, Bassoon, French Horn, Piccolo, Mandolin, Bagpipes, Sitar, Synthesizer, Glockenspiel, Marimba, Cymbals, Bongo, Conga, Timpani, Castanets, Maracas, Cowbell, Kazoo, Ocarina, Lute, Harpsichord, Steel drum, Djembe, Dombra, Doira",
+"Theremin, Didgeridoo, Erhu, Koto, Shamisen, Balalaika, Bouzouki, Oud, Tabla, Sarod, Veena, Shehnai, Kalimba/mbira, Cajon, Bodhran, Hurdy-gurdy, Zither, Dulcimer, Celesta, Euphonium, Flugelhorn, Cornet, Sousaphone, Contrabassoon, Cor anglais/english horn, Pan flute, Shakuhachi, Hang drum/handpan, Melodica, Vibraphone, Washboard, Rubab, Komuz, Gusli, Pipa, Guzheng",
+"Glass harmonica, Ondes Martenot, Serpent, Ophicleide, Crwth, Nyckelharpa, Waterphone, Stylophone, Hydraulophone, Sackbut",
+"Triangle"],
+
+["Words & Language","Name a color",
+"Red, Blue, Green, Yellow, Orange, Purple, Pink, Black, White",
+"Brown, Grey/gray, Gold, Silver, Violet, Indigo, Turquoise, Teal, Navy, Maroon, Beige, Cyan, Magenta, Lavender, Cream",
+"Crimson, Scarlet, Burgundy, Coral, Salmon, Peach, Lilac, Mauve, Olive, Lime, Mint, Emerald, Jade, Khaki, Tan, Ivory, Charcoal, Aqua, Sky blue, Royal blue, Cobalt, Amber, Mustard, Bronze, Copper, Rose, Fuchsia, Plum, Rust",
+"Vermilion, Cerulean, Ochre, Sienna, Umber, Taupe, Ecru, Chartreuse, Periwinkle, Puce, Celadon, Viridian, Carmine, Cinnabar, Sepia, Mahogany, Aubergine, Ultramarine, Azure, Sapphire, Cerise, Heliotrope, Saffron, Marigold, Goldenrod, Champagne, Gunmetal, Slate, Oxblood, Wine, Lapis, Cornflower",
+"Eigengrau, Falu red, Fulvous, Glaucous, Smaragdine, Wenge, Zaffre, Xanadu, Gamboge, Coquelicot, Mikado",
+"!Octarine"],
+
+["Words & Language","Name a spoken language",
+"English, Spanish, French, Chinese/mandarin, German, Arabic, Russian, Japanese",
+"Italian, Portuguese, Hindi, Korean, Turkish, Uzbek, Dutch, Greek, Polish, Swedish, Urdu, Bengali, Persian/farsi, Hebrew, Vietnamese, Thai, Indonesian, Ukrainian, Latin, Cantonese, Kazakh, Tajik",
+"Norwegian, Danish, Finnish, Hungarian, Czech, Romanian, Bulgarian, Serbian, Croatian, Swahili, Punjabi, Tamil, Telugu, Marathi, Gujarati, Malay, Filipino/tagalog, Irish/gaelic, Welsh, Icelandic, Catalan, Basque, Kyrgyz, Turkmen, Azerbaijani, Armenian, Georgian, Mongolian, Pashto, Kurdish, Amharic, Yoruba, Zulu, Afrikaans, Esperanto",
+"Lithuanian, Latvian, Estonian, Slovak, Slovenian, Albanian, Macedonian, Belarusian, Maltese, Luxembourgish, Faroese, Breton, Cornish, Scots Gaelic, Sanskrit, Nepali, Sinhala, Burmese, Khmer, Lao, Tibetan, Uyghur, Tatar, Bashkir, Chechen, Karakalpak, Hausa, Igbo, Somali, Xhosa, Malagasy, Hawaiian, Maori, Samoan, Quechua, Guarani, Nahuatl, Navajo, Cherokee, Inuktitut, Yiddish, Romani, Aramaic, Coptic",
+"Ainu, Basque, Sorbian, Romansh, Ladino, Livonian, Manx, Pirahã/piraha, Toki Pona, Klingon, Dothraki",
+"Klingon"],
+
+["Money","Name a currency",
+"Dollar/us dollar, Euro, Pound/british pound/pound sterling, Yen, Rupee",
+"Peso, Ruble/rouble, Yuan/renminbi, Franc/swiss franc, Won, Lira, Rand, Real, Som/sum, Bitcoin, Dirham, Riyal",
+"Krona, Krone, Zloty, Forint, Shekel, Baht, Rupiah, Ringgit, Dinar, Tenge, Lari, Dram, Manat, Hryvnia, Koruna, Leu, Lev, Kuna, Naira, Shilling, Birr, Cedi, Rial, Taka, Dong, Somoni, Afghani, Tugrik",
+"Kwacha, Kwanza, Pula, Loti, Lilangeni, Metical, Ariary, Dalasi, Leone, Ouguiya, Nakfa, Gourde, Lempira, Quetzal, Colon, Cordoba, Balboa, Bolivar, Boliviano, Sol, Guarani, Kip, Riel, Kyat, Ngultrum, Rufiyaa, Pa'anga/paanga, Tala, Vatu, Kina, Denar, Mark/convertible mark, Ethereum, Dogecoin",
+"Drachma, Deutsche Mark, Peseta, Escudo, Guilder, Lira (Italian), Ducat, Doubloon, Sestertius, Denarius, Shekel (ancient), Groat, Farthing",
+"!Monopoly money"],
+
+["Games","Name a board game",
+"Monopoly, Chess, Scrabble, Checkers/draughts, Clue/cluedo, Uno, Jenga",
+"Snakes and Ladders/chutes and ladders, Risk, Battleship, Connect Four, Sorry, Trivial Pursuit, Backgammon, Catan/settlers of catan, Ludo, Mancala, Game of Life/life, Operation, Guess Who, Pictionary, Candy Land, Go",
+"Ticket to Ride, Pandemic, Carcassonne, Codenames, Dominoes, Mahjong, Othello/reversi, Stratego, Mouse Trap, Twister, Taboo, Boggle, Yahtzee, Exploding Kittens, Cards Against Humanity, Dungeons and Dragons/d&d, Azul, Splendor, Dixit, Monopoly Deal, Nardy/nardi",
+"Agricola, Puerto Rico, Terraforming Mars, Wingspan, Gloomhaven, 7 Wonders, Dominion, Root, Scythe, Twilight Struggle, Power Grid, Small World, King of Tokyo, Betrayal at House on the Hill, Mysterium, Coup, The Resistance, Love Letter, Sushi Go, Hanabi, Blokus, Qwirkle, Kingdomino, Patchwork, Cascadia, Everdell, Spirit Island, Brass, Arkham Horror, Axis and Allies, Diplomacy, Shogi, Xiangqi, Pachisi, Parcheesi, Halma, Chinese Checkers, Nine Men's Morris, Hex, Tak",
+"Senet, Royal Game of Ur, Hnefatafl, Mehen, Patolli, Konane, Fanorona, Bao, Oware",
+"Hungry Hungry Hippos"],
+
+["Science","Name a bone in the human body",
+"Skull, Femur, Rib, Spine",
+"Tibia, Fibula, Humerus, Radius, Ulna, Pelvis/hip bone, Jaw/mandible, Kneecap/patella, Collarbone/clavicle, Vertebra, Sternum/breastbone, Shoulder blade/scapula, Tailbone/coccyx",
+"Cranium, Metacarpal, Metatarsal, Phalanges/phalanx, Carpal, Tarsal, Sacrum, Maxilla, Ilium, Ischium, Pubis, Talus, Calcaneus/heel bone, Atlas, Axis, Hyoid, Cheekbone/zygomatic",
+"Stapes/stirrup, Incus/anvil, Malleus/hammer, Scaphoid, Lunate, Triquetrum, Pisiform, Trapezium, Trapezoid, Capitate, Hamate, Navicular, Cuboid, Cuneiform, Sphenoid, Ethmoid, Vomer, Lacrimal, Palatine, Nasal bone, Occipital, Parietal, Temporal, Frontal",
+"Sesamoid, Fabella, Os acromiale, Wormian bone",
+"!Funny bone"],
+
+["Science","Name an organ of the human body",
+"Heart, Brain, Lungs/lung, Liver, Stomach, Skin, Kidney/kidneys",
+"Intestines/intestine, Small intestine, Large intestine/colon, Bladder, Pancreas, Eyes/eye, Spleen, Appendix, Gallbladder",
+"Thyroid, Esophagus/oesophagus, Tongue, Uterus/womb, Ovary, Tonsils, Larynx, Trachea/windpipe, Prostate, Adrenal gland, Spinal cord",
+"Pituitary gland, Pineal gland, Thymus, Hypothalamus, Diaphragm, Duodenum, Rectum, Pharynx, Cerebellum, Ureter, Urethra, Lymph node, Bone marrow, Placenta, Epiglottis",
+"Mesentery, Interstitium, Islets of Langerhans",
+""],
+
+["History & Myth","Name a Greek god or goddess",
+"Zeus, Poseidon, Hades, Athena, Aphrodite, Apollo",
+"Hera, Ares, Artemis, Hermes, Dionysus, Demeter, Hephaestus, Hestia, Persephone, Eros, Nike, Gaia, Kronos/cronus",
+"Helios, Selene, Eos, Nyx, Pan, Hecate, Iris, Hebe, Nemesis, Tyche, Uranus/ouranos, Rhea, Prometheus, Atlas, Thanatos, Hypnos, Morpheus, Asclepius, Hercules/heracles, Chaos",
+"Erebus, Tartarus, Oceanus, Tethys, Hyperion, Theia, Themis, Mnemosyne, Phoebe, Coeus, Crius, Iapetus, Metis, Leto, Dione, Eris, Phobos, Deimos, Harmonia, Hymen, Ganymede, Boreas, Zephyrus, Notus, Eurus, Triton, Amphitrite, Nereus, Proteus, Psyche, Aether, Hemera, Pontus, Moirai/fates, Clotho, Lachesis, Atropos",
+"Achlys, Momus, Oizys, Ponos, Geras, Palaemon, Eileithyia, Enyo, Kratos, Bia, Zelus, Pheme",
+"Kratos"],
+
+["History & Myth","Name a US president",
+"George Washington/washington, Abraham Lincoln/lincoln, Barack Obama/obama, Donald Trump/trump, Joe Biden/biden, John F. Kennedy/kennedy/jfk",
+"Thomas Jefferson/jefferson, Franklin D. Roosevelt/fdr/franklin roosevelt, Theodore Roosevelt/teddy roosevelt/roosevelt, Ronald Reagan/reagan, Bill Clinton/clinton, George W. Bush/george bush/bush, Richard Nixon/nixon, Jimmy Carter/carter",
+"John Adams/adams, James Madison/madison, Andrew Jackson/jackson, Ulysses S. Grant/grant, Dwight D. Eisenhower/eisenhower/ike, Harry S. Truman/truman, Lyndon B. Johnson/lbj, George H. W. Bush, Gerald Ford/ford, Woodrow Wilson/wilson, James Monroe/monroe",
+"John Quincy Adams, Martin Van Buren/van buren, William Henry Harrison, John Tyler/tyler, James K. Polk/polk, Zachary Taylor/taylor, Millard Fillmore/fillmore, Franklin Pierce/pierce, James Buchanan/buchanan, Andrew Johnson, Rutherford B. Hayes/hayes, James A. Garfield/garfield, Chester A. Arthur/arthur, Grover Cleveland/cleveland, Benjamin Harrison, William McKinley/mckinley, William Howard Taft/taft, Warren G. Harding/harding, Calvin Coolidge/coolidge, Herbert Hoover/hoover",
+"",
+"!Benjamin Franklin/franklin"],
+
+["Books & Film","Name a Shakespeare play",
+"Romeo and Juliet, Hamlet, Macbeth",
+"Othello, King Lear, A Midsummer Night's Dream/midsummer nights dream, Julius Caesar, The Tempest, Much Ado About Nothing, Twelfth Night",
+"The Merchant of Venice, The Taming of the Shrew, As You Like It, Richard III, Henry V, Antony and Cleopatra, The Comedy of Errors",
+"Richard II, Henry IV, Henry VI, Henry VIII, King John, Coriolanus, Titus Andronicus, Timon of Athens, Troilus and Cressida, Measure for Measure, All's Well That Ends Well, The Winter's Tale, Cymbeline, Pericles, The Merry Wives of Windsor, Two Gentlemen of Verona, Love's Labour's Lost",
+"The Two Noble Kinsmen, Edward III, Cardenio",
+"Romeo and Juliet"],
+
+["Science","Name a dinosaur",
+"Tyrannosaurus/t rex/tyrannosaurus rex, Triceratops, Velociraptor/raptor, Stegosaurus, Brachiosaurus",
+"Pterodactyl/pteranodon, Spinosaurus, Diplodocus, Ankylosaurus, Brontosaurus, Allosaurus, Parasaurolophus, Iguanodon, Apatosaurus",
+"Dilophosaurus, Pachycephalosaurus, Gallimimus, Carnotaurus, Giganotosaurus, Compsognathus, Archaeopteryx, Mosasaurus, Plesiosaurus, Deinonychus, Utahraptor, Baryonyx, Therizinosaurus, Oviraptor, Protoceratops, Maiasaura, Megalosaurus, Argentinosaurus",
+"Microraptor, Troodon, Albertosaurus, Gorgosaurus, Tarbosaurus, Daspletosaurus, Styracosaurus, Centrosaurus, Chasmosaurus, Kentrosaurus, Edmontosaurus, Corythosaurus, Lambeosaurus, Hadrosaurus, Camarasaurus, Mamenchisaurus, Patagotitan, Dreadnoughtus, Coelophysis, Herrerasaurus, Eoraptor, Plateosaurus, Psittacosaurus, Ceratosaurus, Acrocanthosaurus, Suchomimus, Irritator, Majungasaurus, Yutyrannus, Sinosauropteryx, Amargasaurus, Nodosaurus, Euoplocephalus, Minmi, Dracorex",
+"Nigersaurus, Mononykus, Halszkaraptor, Epidexipteryx, Yi qi, Kosmoceratops, Zuul, Stygimoloch",
+"!Dimetrodon"],
+
+["Food","Name a cheese",
+"Cheddar, Mozzarella, Parmesan/parmigiano, Swiss, Brie, Feta",
+"Gouda, Camembert, Blue cheese, Cream cheese, Ricotta, Goat cheese/chevre, Provolone, American, Colby, Monterey Jack, Pepper Jack, Halloumi, Cottage cheese, Mascarpone, Gorgonzola",
+"Stilton, Roquefort, Emmental, Gruyere, Edam, Manchego, Pecorino, Havarti, Muenster, Burrata, Paneer, Asiago, Fontina, Jarlsberg, Wensleydale, Red Leicester, Double Gloucester, Queso fresco, Kurt",
+"Taleggio, Raclette, Comte, Reblochon, Epoisses, Munster, Limburger, Gjetost/brunost, Leerdammer, Boursin, Port Salut, Saint Agur, Cotija, Oaxaca, Manouri, Kasseri, Caerphilly, Lancashire, Cheshire, Stinking Bishop, Mimolette, Morbier, Tomme, Pont-l'Eveque, Valencay, Scamorza, Stracciatella, Grana Padano, Sulguni, Brynza",
+"Casu marzu, Pule, Milbenkase, Vieux Boulogne, Bitto Storico",
+"Swiss"],
+
+["Food","Name a pasta shape",
+"Spaghetti, Penne, Macaroni, Lasagna/lasagne, Fettuccine, Ravioli",
+"Linguine, Fusilli, Rigatoni, Farfalle/bow tie, Tortellini, Gnocchi, Tagliatelle, Ziti, Angel hair/capellini, Shells/conchiglie, Rotini, Orzo, Cannelloni",
+"Pappardelle, Bucatini, Orecchiette, Vermicelli, Manicotti, Cavatappi, Gemelli, Radiatori, Ditalini, Campanelle, Agnolotti, Tortelloni, Paccheri, Rotelle/wagon wheels, Stelline, Alphabet",
+"Strozzapreti, Casarecce, Trofie, Cavatelli, Malloreddus, Mafaldine, Fregola, Anelli, Acini di pepe, Orecchiette, Garganelli, Lumache, Conchiglioni, Mezzi rigatoni, Pici, Bigoli, Busiate, Calamarata, Candele, Tripoline, Ziti tagliati, Sorprese, Creste di gallo, Lorighittas, Corzetti",
+"Su filindeu, Cappelletti, Mandilli de saea, Fazzoletti, Lagane",
+"!Ramen"],
+
+["Food","Name a herb or spice",
+"Salt, Pepper/black pepper, Basil, Cinnamon, Garlic, Oregano, Mint",
+"Paprika, Cumin, Turmeric, Ginger, Rosemary, Thyme, Parsley, Cilantro/coriander, Chili powder, Nutmeg, Vanilla, Dill, Sage, Bay leaf",
+"Cardamom, Cloves, Saffron, Fennel, Chives, Tarragon, Marjoram, Allspice, Star anise, Anise, Cayenne, Mustard seed, Curry powder, Garam masala, Sesame, Lemongrass, Caraway, Poppy seed",
+"Sumac, Za'atar/zaatar, Fenugreek, Asafoetida/hing, Galangal, Juniper, Lovage, Chervil, Sorrel, Savory, Epazote, Mace, Nigella, Ajwain, Grains of paradise, Long pepper, Sichuan pepper, Annatto, Kaffir lime leaf, Shiso, Amchur, Mahlab, Barberry, Zira",
+"Hyssop, Rue, Costmary, Cubeb, Wattleseed, Lemon myrtle, Kokum",
+"!Pumpkin spice"],
+
+["Nature","Name a flower",
+"Rose, Tulip, Sunflower, Daisy, Lily, Orchid",
+"Daffodil, Lavender, Lotus, Carnation, Poppy, Violet, Dandelion, Iris, Jasmine, Hibiscus, Peony, Marigold, Cherry blossom, Chrysanthemum",
+"Lilac, Magnolia, Hydrangea, Gardenia, Camellia, Azalea, Begonia, Petunia, Geranium, Pansy, Snapdragon, Zinnia, Dahlia, Aster, Gladiolus, Freesia, Lily of the valley, Bluebell, Buttercup, Forget-me-not, Morning glory, Sweet pea, Hyacinth, Crocus, Anemone, Primrose, Foxglove, Cosmos, Bougainvillea, Edelweiss",
+"Amaryllis, Ranunculus, Protea, Bird of paradise, Anthurium, Plumeria/frangipani, Wisteria, Clematis, Honeysuckle, Heather, Lupin, Delphinium, Larkspur, Hollyhock, Columbine, Bleeding heart, Calla lily, Alstroemeria, Gerbera, Lisianthus, Stock, Verbena, Lantana, Oleander, Passionflower, Snowdrop, Trillium, Gentian, Saxifrage, Hellebore, Allium, Agapanthus, Strelitzia, Waterlily, Tulip tree",
+"Rafflesia, Corpse flower/titan arum, Ghost orchid, Middlemist red, Kadupul, Jade vine, Chocolate cosmos",
+"Venus flytrap"],
+
+["Nature","Name a tree",
+"Oak, Pine, Maple, Palm, Apple, Birch, Christmas tree",
+"Willow, Cedar, Redwood, Sequoia, Spruce, Fir, Elm, Ash, Cherry, Bamboo, Baobab, Banyan, Eucalyptus, Beech, Poplar, Walnut, Chestnut, Olive, Coconut",
+"Sycamore, Cypress, Juniper, Hemlock, Larch, Aspen, Cottonwood, Magnolia, Dogwood, Hickory, Pecan, Mahogany, Teak, Ebony, Rosewood, Acacia, Mango, Lemon, Orange, Fig, Plum, Pear, Linden/lime tree, Alder, Hazel, Yew, Holly, Ginkgo, Jacaranda, Plane tree, Mulberry, Almond, Pistachio, Apricot",
+"Hornbeam, Rowan, Hawthorn, Blackthorn, Sweetgum, Tulip tree, Catalpa, Locust, Mesquite, Joshua tree, Dragon blood tree, Monkey puzzle, Kapok, Neem, Tamarind, Sandalwood, Balsa, Cork oak, Rubber tree, Cacao, Breadfruit, Jackfruit, Kauri, Bristlecone pine, Dawn redwood, Wollemi pine, Paulownia, Sassafras, Tupelo, Buckeye, Horse chestnut, Persimmon, Saxaul, Karagach",
+"Rainbow eucalyptus, Quiver tree, Silk floss, Sandbox tree, Manchineel, Cannonball tree, Bottle tree",
+"Money tree"],
+
+["Nature","Name a gemstone",
+"Diamond, Ruby, Emerald, Sapphire, Pearl",
+"Amethyst, Opal, Topaz, Jade, Turquoise, Garnet, Aquamarine, Onyx, Quartz",
+"Peridot, Tourmaline, Citrine, Tanzanite, Moonstone, Amber, Lapis lazuli, Obsidian, Agate, Jasper, Malachite, Zircon, Coral, Rose quartz, Tiger's eye/tigers eye, Bloodstone",
+"Alexandrite, Spinel, Morganite, Kunzite, Iolite, Tsavorite, Chrysoberyl, Labradorite, Sunstone, Carnelian, Chalcedony, Rhodochrosite, Sodalite, Fluorite, Hematite, Pyrite, Jet, Kyanite, Azurite, Chrysoprase, Beryl, Heliodor, Andalusite, Apatite, Charoite, Moissanite",
+"Painite, Benitoite, Grandidierite, Taaffeite, Red beryl, Musgravite, Jeremejevite, Poudretteite",
+"!Kryptonite"],
+
+["Food","Name a dessert",
+"Ice cream, Cake, Cookie, Brownie, Pie, Chocolate",
+"Cheesecake, Cupcake, Donut/doughnut, Pudding, Tiramisu, Apple pie, Muffin, Pancakes, Waffles, Macaron, Mousse, Jelly/jello, Sundae, Milkshake, Churros, Baklava, Croissant",
+"Creme brulee, Panna cotta, Gelato, Sorbet, Eclair, Profiterole, Cannoli, Pavlova, Trifle, Crumble, Cobbler, Fudge, Truffle, Flan, Custard, Meringue, Parfait, Shortcake, Red velvet cake, Carrot cake, Key lime pie, Pecan pie, Strudel, Mochi, Halva, Chak-chak, Napoleon, Medovik/honey cake",
+"Baked Alaska, Black Forest cake, Sachertorte, Opera cake, Mille-feuille, Clafoutis, Tarte tatin, Souffle, Zabaglione, Semifreddo, Affogato, Kulfi, Gulab jamun, Jalebi, Rasgulla, Kheer, Basbousa, Kunafa/knafeh, Lamington, Tres leches, Brigadeiro, Alfajor, Dulce de leche, Banoffee pie, Eton mess, Sticky toffee pudding, Spotted dick, Bread pudding, Rice pudding, Stroopwafel, Pastel de nata, Loukoumades, Turkish delight, Daifuku, Dorayaki, Bingsu, Halo-halo, Sumalak, Navvot, Parvarda",
+"Croquembouche, Kouign-amann, Pithivier, Dobos torte, Prinsesstarta, Pastiera, Charlotte russe, Gateau St Honore",
+"Fruit salad"],
+
+["Science","Name an object in our solar system",
+"Sun, Earth, Moon, Mars, Jupiter, Saturn, Venus, Mercury",
+"Neptune, Uranus, Pluto, Asteroid belt, Halley's Comet/halleys comet, Ceres",
+"Titan, Europa, Io, Ganymede, Callisto, Phobos, Deimos, Eris, Makemake, Haumea, Triton, Enceladus, Charon, Vesta, Kuiper belt",
+"Oort cloud, Mimas, Rhea, Dione, Tethys, Iapetus, Hyperion, Phoebe, Miranda, Titania, Oberon, Umbriel, Ariel, Nereid, Proteus, Sedna, Quaoar, Orcus, Gonggong, Pallas, Hygiea, Psyche, Bennu, Ryugu, Eros, Arrokoth, Amalthea, Thebe, Metis, Pan, Atlas, Prometheus, Pandora, Janus, Epimetheus, Nix, Hydra, Kerberos, Styx",
+"Dysnomia, Hi'iaka, Namaka, Weywot, Vanth, Xiangliu, Puck, Larissa, Halimede, Sycorax",
+"!Planet X/planet nine"],
+
+["Art","Name a famous painter",
+"Leonardo da Vinci/da vinci/leonardo, Pablo Picasso/picasso, Vincent van Gogh/van gogh, Michelangelo",
+"Claude Monet/monet, Salvador Dali/dali, Frida Kahlo/kahlo, Rembrandt, Andy Warhol/warhol, Raphael, Bob Ross, Banksy",
+"Edvard Munch/munch, Gustav Klimt/klimt, Henri Matisse/matisse, Paul Cezanne/cezanne, Pierre-Auguste Renoir/renoir, Edgar Degas/degas, Johannes Vermeer/vermeer, Jackson Pollock/pollock, Georgia O'Keeffe/okeeffe, Rene Magritte/magritte, Caravaggio, Botticelli, Francisco Goya/goya, Diego Velazquez/velazquez, Paul Gauguin/gauguin, Wassily Kandinsky/kandinsky, Piet Mondrian/mondrian, Edward Hopper/hopper, Keith Haring/haring, Jean-Michel Basquiat/basquiat, Roy Lichtenstein/lichtenstein, Hokusai",
+"J. M. W. Turner/turner, John Constable/constable, Titian, Jan van Eyck/van eyck, Hieronymus Bosch/bosch, Pieter Bruegel/bruegel, Albrecht Durer/durer, El Greco, Peter Paul Rubens/rubens, Diego Rivera/rivera, Mark Rothko/rothko, Joan Miro/miro, Marc Chagall/chagall, Egon Schiele/schiele, Amedeo Modigliani/modigliani, Paul Klee/klee, Georges Seurat/seurat, Camille Pissarro/pissarro, Edouard Manet/manet, Mary Cassatt/cassatt, Artemisia Gentileschi/gentileschi, Kazimir Malevich/malevich, David Hockney/hockney, Yayoi Kusama/kusama, Gustave Courbet/courbet, Eugene Delacroix/delacroix, Jacques-Louis David, Ilya Repin/repin, Ivan Aivazovsky/aivazovsky, Kamoliddin Behzod/behzod, Utagawa Hiroshige/hiroshige, Henri Rousseau/rousseau, Grant Wood, Norman Rockwell/rockwell, Tamara de Lempicka/lempicka, Frida",
+"Giotto, Masaccio, Piero della Francesca, Hans Holbein/holbein, Caspar David Friedrich/friedrich, Hilma af Klint, Paula Modersohn-Becker, Remedios Varo, Leonora Carrington, Agnes Martin, Alexander Volkov/volkov",
+"Bob Ross"],
+
+["Music","Name a classical composer",
+"Mozart, Beethoven, Bach",
+"Chopin, Vivaldi, Tchaikovsky, Handel, Debussy, Schubert, Brahms, Haydn, Wagner, Verdi",
+"Liszt, Mendelssohn, Schumann, Rachmaninoff, Stravinsky, Dvorak, Grieg, Puccini, Rossini, Strauss, Mahler, Ravel, Satie, Prokofiev, Shostakovich, Rimsky-Korsakov, Mussorgsky, Elgar, Holst, Pachelbel, Paganini, Bizet, Saint-Saens, Gershwin, Copland, Bernstein, Glass, Sibelius, Purcell",
+"Monteverdi, Palestrina, Telemann, Scarlatti, Corelli, Gluck, Berlioz, Bruckner, Faure, Franck, Borodin, Glinka, Scriabin, Bartok, Janacek, Smetana, Nielsen, Vaughan Williams, Britten, Barber, Ives, Messiaen, Schoenberg, Berg, Webern, Hindemith, Poulenc, Milhaud, Arvo Part/part, Reich, Gorecki, Hildegard of Bingen, Clara Schumann, Fanny Mendelssohn, Albinoni, Boccherini, Offenbach, Delibes, Massenet, Donizetti, Bellini, Khachaturian",
+"Gesualdo, Josquin, Machaut, Perotin, Dufay, Tallis, Byrd, Dowland, Zelenka, Biber, Alkan, Sorabji, Ligeti, Xenakis",
+"!Hans Zimmer/zimmer"],
+
+["Geography","Name a river",
+"Nile, Amazon, Mississippi, Thames",
+"Yangtze, Danube, Ganges, Rhine, Seine, Volga, Colorado, Hudson, Mekong, Tigris, Euphrates, Jordan, Amu Darya, Syr Darya",
+"Missouri, Ohio, Rio Grande, Yukon, Columbia, St. Lawrence, Congo, Niger, Zambezi, Limpopo, Orinoco, Parana, Yellow River/huang he, Indus, Brahmaputra, Irrawaddy, Ob, Yenisei, Lena, Amur, Dnieper, Don, Elbe, Oder, Vistula, Loire, Rhone, Po, Tiber, Ebro, Tagus, Shannon, Severn, Zarafshan, Chirchiq",
+"Murray, Darling, Mackenzie, Fraser, Snake, Tennessee, Arkansas, Red River, Platte, Potomac, Delaware, Susquehanna, Sao Francisco, Madeira, Negro, Purus, Xingu, Magdalena, Uruguay, Orange, Kasai, Ubangi, Senegal, Gambia, Okavango, Salween, Pearl River, Mekong Delta, Sutlej, Irtysh, Ural, Kama, Pechora, Dvina, Neva, Dniester, Prut, Drava, Sava, Tisza, Inn, Main, Moselle, Garonne, Douro, Guadalquivir, Liffey, Clyde, Tyne, Mersey, Avon, Kura, Aras, Naryn, Vakhsh",
+"Onyx River, Rio Tinto, Cano Cristales, Caño Cristales, Kaveri, Sepik, Fly River, Waikato",
+"!River Styx/styx"],
+
+["Geography","Name a mountain",
+"Mount Everest/everest, Kilimanjaro, Mount Fuji/fuji, K2",
+"Matterhorn, Mont Blanc, Denali/mount mckinley, Mount Olympus/olympus, Mount Rushmore, Mount Kenya, Elbrus, Aconcagua, Ben Nevis, Mount Sinai, Mount Vesuvius/vesuvius, Mount Etna/etna",
+"Kangchenjunga, Lhotse, Makalu, Annapurna, Nanga Parbat, Mount St. Helens, Mount Rainier, Mount Whitney, Pikes Peak, Mount Ararat/ararat, Mount Kosciuszko, Mont Ventoux, Eiger, Jungfrau, Table Mountain, Sugarloaf Mountain, Chimborazo, Cotopaxi, Popocatepetl, Mauna Kea, Mauna Loa, Snowdon/yr wyddfa, Ismoil Somoni Peak, Lenin Peak, Khan Tengri, Chimgan",
+"Cho Oyu, Dhaulagiri, Manaslu, Broad Peak, Gasherbrum, Shishapangma, Ama Dablam, Mount Logan, Mount Elbert, Grand Teton, Half Dome, El Capitan, Mount Hood, Mount Shasta, Mount Cook/aoraki, Vinson Massif/mount vinson, Puncak Jaya/carstensz pyramid, Mount Erebus, Mount Kailash, Huascaran, Ojos del Salado, Fitz Roy, Cerro Torre, Torres del Paine, Grossglockner, Zugspitze, Triglav, Musala, Mount Athos, Mount Tai, Huangshan, Kinabalu, Rinjani, Pico de Orizaba, Iztaccihuatl, Mount Meru, Ruwenzori/rwenzori, Toubkal, Mount Cameroon, Ras Dashen, Damavand, Kazbek, Ushba, Pobeda Peak/jengish chokusu, Big Chimgan, Beshtor",
+"Olympus Mons, Maxwell Montes, Mount Thor, Gangkhar Puensum, Rakaposhi, Trango Towers, Mount Roraima",
+"!Mount Doom/orodruin"],
+
+["Food","Name a fast food chain",
+"McDonald's/mcdonalds, KFC, Burger King, Subway, Pizza Hut, Domino's/dominos, Starbucks",
+"Wendy's/wendys, Taco Bell, Popeyes, Chick-fil-A/chick fil a, Dunkin'/dunkin donuts, Five Guys, Papa John's/papa johns, In-N-Out/in n out, Chipotle, Shake Shack, Tim Hortons, Arby's/arbys, Sonic, Little Caesars, Evos, Les Ailes",
+"Jack in the Box, Carl's Jr./carls jr, Hardee's/hardees, Dairy Queen, Whataburger, White Castle, Panda Express, Panera Bread/panera, Wingstop, Raising Cane's/raising canes, Jollibee, Nando's/nandos, Pret a Manger/pret, Greggs, Krispy Kreme, Baskin-Robbins/baskin robbins, Del Taco, Culver's/culvers, Zaxby's/zaxbys, Bojangles, Church's Chicken/churchs, Steak 'n Shake, Quiznos, Jersey Mike's/jersey mikes, Jimmy John's/jimmy johns, Firehouse Subs, Max Burgers, Oqtepa Lavash, Bon!",
+"Hesburger, Wimpy, Quick, Lotteria, MOS Burger, Yoshinoya, Sukiya, CoCo Ichibanya, Mr. Bean, Max, Freshii, Pollo Tropical, El Pollo Loco, Wienerschnitzel, Krystal, A&W, Checkers, Rally's, Long John Silver's, Captain D's, Moe's, Qdoba, Cava, Sweetgreen, Portillo's, Cook Out, Smashburger, Habit Burger, Fatburger, Johnny Rockets, Teremok, Kroshka Kartoshka, Vkusno i Tochka, Feedup, Pizza Inn, Chicken Licken, Steers, Galito's, Mary Brown's",
+"Burger Chef, Sambo's, Gino's Giant, Lums, Druther's",
+"!Krusty Burger/krusty krab"],
+
+["Sports","Name a football (soccer) club",
+"Real Madrid, Barcelona, Manchester United/man united/man utd, Liverpool, Chelsea, Arsenal, Bayern Munich/bayern",
+"Manchester City/man city, Juventus, AC Milan/milan, Inter Milan/inter, PSG/paris saint-germain, Tottenham/spurs, Borussia Dortmund/dortmund, Atletico Madrid/atletico, Ajax, Inter Miami, Benfica, Porto, Celtic, Rangers, Napoli, Roma, Galatasaray, Pakhtakor",
+"Newcastle, Aston Villa, West Ham, Everton, Leicester City/leicester, Sevilla, Valencia, Villarreal, Real Sociedad, Athletic Bilbao/athletic club, Lazio, Fiorentina, Atalanta, RB Leipzig/leipzig, Bayer Leverkusen/leverkusen, Schalke, PSV, Feyenoord, Sporting CP/sporting lisbon, Marseille, Lyon, Monaco, Fenerbahce, Besiktas, Boca Juniors, River Plate, Flamengo, Santos, Corinthians, Palmeiras, LA Galaxy, Al Nassr, Al Hilal, Zenit, Spartak Moscow, CSKA Moscow, Shakhtar Donetsk, Dynamo Kyiv, Nasaf, Navbahor, Bunyodkor",
+"Brighton, Crystal Palace, Wolves/wolverhampton, Fulham, Brentford, Nottingham Forest, Leeds United/leeds, Sunderland, Southampton, Bournemouth, Burnley, Sheffield United, Norwich, Watford, Middlesbrough, Real Betis/betis, Getafe, Osasuna, Celta Vigo, Espanyol, Torino, Bologna, Genoa, Sampdoria, Udinese, Eintracht Frankfurt/frankfurt, Wolfsburg, Stuttgart, Werder Bremen, Union Berlin, Freiburg, Hertha Berlin, AZ Alkmaar, Club Brugge, Anderlecht, Red Bull Salzburg/salzburg, Dinamo Zagreb, Red Star Belgrade/crvena zvezda, Olympiacos, Panathinaikos, Copenhagen, Malmo, Rosenborg, Young Boys, Basel, Lille, Nice, Rennes, Lens, Al Ahly, Zamalek, Kaizer Chiefs, Orlando Pirates, Urawa Reds, Kashima Antlers, Seattle Sounders, LAFC, Toronto FC, Club America, Chivas, Tigres, Monterrey, Penarol, Nacional, Independiente, Racing Club, Sao Paulo, Gremio, Internacional, Fluminense, Vasco da Gama, Botafogo, Lokomotiv Tashkent, AGMK, Andijon, Neftchi Fergana/neftchi",
+"Forest Green Rovers, Accrington Stanley, Hashtag United, Dulwich Hamlet, St. Pauli, Union SG, Bodo/Glimt, Ludogorets, Sheriff Tiraspol, Wrexham",
+"Wrexham"],
+
+["Sports","Name an NBA team",
+"Lakers/los angeles lakers, Bulls/chicago bulls, Warriors/golden state warriors, Celtics/boston celtics, Heat/miami heat",
+"Knicks/new york knicks, Nets/brooklyn nets, Clippers/la clippers, Rockets/houston rockets, Spurs/san antonio spurs, Cavaliers/cavs/cleveland cavaliers, Mavericks/mavs/dallas mavericks, 76ers/sixers/philadelphia 76ers, Raptors/toronto raptors, Bucks/milwaukee bucks, Suns/phoenix suns, Thunder/okc thunder/oklahoma city thunder",
+"Nuggets/denver nuggets, Timberwolves/wolves/minnesota timberwolves, Trail Blazers/blazers/portland trail blazers, Jazz/utah jazz, Kings/sacramento kings, Grizzlies/memphis grizzlies, Pelicans/new orleans pelicans, Hawks/atlanta hawks, Magic/orlando magic, Pistons/detroit pistons, Pacers/indiana pacers",
+"Hornets/charlotte hornets, Wizards/washington wizards",
+"SuperSonics/seattle supersonics/sonics, Bobcats/charlotte bobcats, New Jersey Nets, Vancouver Grizzlies, Washington Bullets/bullets, Minneapolis Lakers, Buffalo Braves, Kansas City Kings",
+"!Harlem Globetrotters/globetrotters"],
+
+["Science","Name a famous scientist",
+"Albert Einstein/einstein, Isaac Newton/newton, Marie Curie/curie, Charles Darwin/darwin, Nikola Tesla/tesla, Galileo/galileo galilei",
+"Stephen Hawking/hawking, Thomas Edison/edison, Alexander Graham Bell/bell, Louis Pasteur/pasteur, Michael Faraday/faraday, Archimedes, Aristotle, Copernicus/nicolaus copernicus, Gregor Mendel/mendel, Alexander Fleming/fleming, Johannes Kepler/kepler, Ibn Sina/avicenna, Al-Khwarizmi/al khwarizmi, Ulugh Beg/ulugbek",
+"Niels Bohr/bohr, Max Planck/planck, Richard Feynman/feynman, Ernest Rutherford/rutherford, Dmitri Mendeleev/mendeleev, James Clerk Maxwell/maxwell, Rosalind Franklin/franklin, Carl Sagan/sagan, Ada Lovelace/lovelace, Alan Turing/turing, Robert Oppenheimer/oppenheimer, Neil deGrasse Tyson/tyson, Jane Goodall/goodall, Edwin Hubble/hubble, Werner Heisenberg/heisenberg, Erwin Schrodinger/schrodinger, Pythagoras, Euclid, Hippocrates, Leonardo da Vinci, Benjamin Franklin, Antoine Lavoisier/lavoisier, Robert Hooke/hooke, Robert Boyle/boyle, Al-Biruni/biruni, Linus Pauling/pauling, Watson, Crick, Enrico Fermi/fermi, Paul Dirac/dirac",
+"Lise Meitner/meitner, Emmy Noether/noether, Chien-Shiung Wu/wu, Barbara McClintock/mcclintock, Dorothy Hodgkin/hodgkin, Rachel Carson/carson, Katherine Johnson, Grace Hopper/hopper, Vera Rubin/rubin, Henrietta Leavitt/leavitt, Cecilia Payne/payne, Srinivasa Ramanujan/ramanujan, Carl Friedrich Gauss/gauss, Leonhard Euler/euler, Rene Descartes/descartes, Blaise Pascal/pascal, Christiaan Huygens/huygens, Antonie van Leeuwenhoek/leeuwenhoek, Carl Linnaeus/linnaeus, Alfred Russel Wallace/wallace, James Watt/watt, Andre-Marie Ampere/ampere, Alessandro Volta/volta, Hans Christian Orsted/orsted, Georg Ohm/ohm, Heinrich Hertz/hertz, Guglielmo Marconi/marconi, Wilhelm Rontgen/rontgen, Henri Becquerel/becquerel, Edward Jenner/jenner, Joseph Lister/lister, Robert Koch/koch, Ivan Pavlov/pavlov, Sigmund Freud/freud, Tycho Brahe/brahe, Ibn al-Haytham/alhazen, Omar Khayyam/khayyam, Al-Farabi/farabi, Jagadish Chandra Bose, C. V. Raman/raman, Hideki Yukawa/yukawa, Peter Higgs/higgs, Subrahmanyan Chandrasekhar/chandrasekhar, Abdus Salam",
+"Hypatia, Emilie du Chatelet, Mary Anning, Ignaz Semmelweis/semmelweis, Nettie Stevens, Alfred Wegener/wegener, Tu Youyou, Jocelyn Bell Burnell, Inge Lehmann",
+"Bill Nye"],
+
+["Science","Name a unit of measurement",
+"Meter/metre, Kilogram, Second, Inch, Foot/feet, Mile, Liter/litre, Gram",
+"Centimeter, Millimeter, Kilometer, Pound, Ounce, Yard, Celsius, Fahrenheit, Kelvin, Volt, Watt, Ampere/amp, Newton, Joule, Hour, Minute, Gallon, Ton/tonne, Calorie, Degree",
+"Ohm, Hertz, Pascal, Mole, Candela, Coulomb, Acre, Hectare, Pint, Quart, Cup, Teaspoon, Tablespoon, Light year, Byte, Bit, Decibel, Knot, Horsepower, Bar, Atmosphere, Millisecond, Nanometer, Micrometer, Stone, Fluid ounce, Radian, Mph",
+"Tesla, Weber, Henry, Farad, Siemens, Becquerel, Gray, Sievert, Lumen, Lux, Katal, Parsec, Astronomical unit, Angstrom, Furlong, Fathom, League, Chain, Rod, Hand, Cubit, Carat, Grain, Dram, Bushel, Barrel, Erg, Dyne, Torr, Electronvolt, BTU, Therm, Steradian, Nautical mile",
+"Smoot, Sheppey, Jiffy, Barn, Mickey, Shake, Hubble length, Beard-second, Scoville, Dobson unit",
+"!Banana for scale"],
+
+["Words & Language","Name a shape",
+"Circle, Square, Triangle, Rectangle, Star, Heart",
+"Oval, Diamond, Pentagon, Hexagon, Octagon, Cube, Sphere, Pyramid, Cylinder, Cone, Rhombus, Trapezoid/trapezium",
+"Parallelogram, Heptagon, Nonagon, Decagon, Ellipse, Crescent, Semicircle, Prism, Cuboid, Kite, Arrow, Cross, Spiral, Torus, Tetrahedron, Octahedron, Polygon",
+"Dodecagon, Hendecagon, Icosagon, Dodecahedron, Icosahedron, Rhomboid, Annulus, Lune, Sector, Frustum, Hemisphere, Ellipsoid, Paraboloid, Hyperboloid, Helix, Trefoil, Quatrefoil, Deltoid, Lemniscate, Cardioid, Pentagram, Hexagram, Reuleaux triangle, Mobius strip, Klein bottle, Squircle",
+"Megagon, Myriagon, Apeirogon, Gomboc, Oloid, Sphericon, Hexaflexagon",
+"!Blob"],
+
+["Science","Name a constellation",
+"Orion, Big Dipper/ursa major, Little Dipper/ursa minor",
+"Cassiopeia, Leo, Scorpius/scorpio, Taurus, Gemini, Aries, Cancer, Virgo, Libra, Sagittarius, Capricorn/capricornus, Aquarius, Pisces, Pegasus, Draco, Andromeda",
+"Cygnus, Lyra, Perseus, Hercules, Centaurus, Canis Major, Canis Minor, Aquila, Southern Cross/crux, Bootes, Cepheus, Auriga, Hydra, Ophiuchus, Corona Borealis, Lepus, Phoenix",
+"Monoceros, Sextans, Crater, Corvus, Antlia, Pyxis, Vela, Puppis, Carina, Columba, Fornax, Sculptor, Grus, Tucana, Pavo, Indus, Octans, Mensa, Volans, Dorado, Pictor, Reticulum, Horologium, Caelum, Eridanus, Cetus, Triangulum, Lacerta, Vulpecula, Sagitta, Delphinus, Equuleus, Serpens, Scutum, Lupus, Ara, Norma, Circinus, Musca, Chamaeleon, Apus, Triangulum Australe, Telescopium, Microscopium, Piscis Austrinus, Corona Australis, Camelopardalis, Lynx, Leo Minor, Canes Venatici, Coma Berenices, Hydrus",
+"Argo Navis, Quadrans Muralis, Felis, Noctua, Rangifer, Antinous",
+"!Pleiades"],
+
+["Games","Name a Pokemon",
+"Pikachu, Charizard, Bulbasaur, Squirtle, Charmander, Eevee, Mewtwo, Jigglypuff",
+"Snorlax, Gengar, Mew, Psyduck, Meowth, Lucario, Gyarados, Dragonite, Magikarp, Lapras, Ditto, Blastoise, Venusaur, Pidgey, Rattata, Onix, Machamp, Vulpix, Togepi, Greninja",
+"Arcanine, Alakazam, Golem, Cubone, Ninetales, Vaporeon, Jolteon, Flareon, Espeon, Umbreon, Sylveon, Rayquaza, Lugia, Ho-Oh, Kyogre, Groudon, Arceus, Garchomp, Gardevoir, Blaziken, Mudkip, Torchic, Treecko, Piplup, Chimchar, Turtwig, Totodile, Cyndaquil, Chikorita, Mimikyu, Rowlet, Scizor, Scyther, Tyranitar, Metagross, Zubat, Geodude, Abra, Slowpoke, Koffing, Ekans, Sandshrew, Oddish, Bellsprout",
+"Farfetch'd/farfetchd, Kangaskhan, Tauros, Porygon, Kabuto, Omanyte, Aerodactyl, Articuno, Zapdos, Moltres, Celebi, Jirachi, Deoxys, Darkrai, Shaymin, Victini, Zekrom, Reshiram, Kyurem, Xerneas, Yveltal, Zygarde, Solgaleo, Lunala, Necrozma, Zacian, Zamazenta, Eternatus, Koraidon, Miraidon, Wooper, Quagsire, Marill, Sudowoodo, Smeargle, Shuckle, Wobbuffet, Unown, Spinda, Feebas, Milotic, Spheal, Bidoof, Pachirisu, Drifloon, Trubbish, Klefki, Dedenne, Wishiwashi, Pyukumuku, Cramorant, Wooloo, Yamper, Sprigatito, Fuecoco, Quaxly, Tinkaton, Annihilape, Kingambit",
+"Missingno, Bruxish, Dhelmise, Stonjourner, Applin, Orbeetle, Dachsbun, Finizen",
+"!Digimon"],
+
+["Everyday","Name a piece of clothing",
+"Shirt, T-shirt/tshirt, Pants/trousers, Jeans, Dress, Socks, Shoes, Hat, Jacket",
+"Skirt, Shorts, Sweater/jumper, Hoodie, Coat, Scarf, Gloves, Tie, Belt, Boots, Sneakers/trainers, Underwear, Pajamas/pyjamas, Blouse, Suit, Cap, Vest, Sandals",
+"Cardigan, Blazer, Tuxedo, Leggings, Tank top, Polo shirt, Overalls/dungarees, Jumpsuit, Romper, Kimono, Sari, Robe, Bathrobe, Swimsuit, Bikini, Mittens, Beanie, Beret, Bow tie, Raincoat, Parka, Poncho, Apron, Uniform, Slippers, Heels, Flip-flops, Bra, Tights, Turtleneck, Crop top, Tracksuit, Chapan, Doppi/tubeteika",
+"Kilt, Toga, Tunic, Kaftan, Caftan, Dashiki, Hanbok, Cheongsam/qipao, Dirndl, Lederhosen, Sarong, Kurta, Salwar kameez, Abaya, Hijab, Burqa, Fez, Turban, Sombrero, Fedora, Trilby, Bowler hat, Top hat, Balaclava, Cravat, Ascot, Corset, Petticoat, Bodice, Waistcoat, Gilet, Anorak, Windbreaker, Peacoat, Trench coat, Duffle coat, Culottes, Capris, Chinos, Jodhpurs, Spats, Gaiters, Galoshes, Clogs, Espadrilles, Moccasins, Loafers, Brogues, Mules, Oxfords, Ikat robe, Paranja, Kalpak",
+"Codpiece, Ruff, Farthingale, Doublet, Jerkin, Bustle, Pantaloons, Cummerbund, Snood, Wimple",
+"Onesie"],
+
+["Everyday","Name a kitchen utensil",
+"Spoon, Fork, Knife, Spatula, Whisk, Pan",
+"Ladle, Tongs, Peeler, Grater, Colander, Rolling pin, Cutting board/chopping board, Measuring cup, Can opener, Bottle opener, Chopsticks, Pot, Wok, Blender, Toaster, Kettle, Teapot, Oven mitt, Strainer",
+"Masher/potato masher, Garlic press, Corkscrew, Mortar and pestle, Sieve, Skimmer, Slotted spoon, Pizza cutter, Kitchen scissors, Mandoline, Zester, Baster, Funnel, Skewer, Thermometer, Timer, Scale, Mixing bowl, Baking sheet, Muffin tin, Cast iron skillet, Saucepan, Dutch oven, Pressure cooker, Rice cooker, Food processor, Juicer, Ice cream scoop, Salad spinner, Kazan",
+"Pastry brush, Pastry cutter, Dough scraper/bench scraper, Melon baller, Apple corer, Egg slicer, Cherry pitter, Citrus reamer, Nutcracker, Meat tenderizer, Mezzaluna, Spider strainer, Fish slice, Splatter guard, Trivet, Ramekin, Tagine, Paella pan, Crepe pan, Tamis, Chinois, Microplane, Cleaver, Santoku, Sharpening steel/honing steel, Whetstone, Piping bag, Offset spatula, Pie weights, Bain-marie, Double boiler, Sous vide, Mandoline slicer, Tandir, Kapgir, Chekich",
+"Spurtle, Tamagoyaki pan, Ebelskiver pan, Lemon squeezer, Spork, Pickle fork, Grapefruit spoon",
+"Spork"],
+
+["Words & Language","Name a Greek letter",
+"Alpha, Beta, Gamma, Delta, Pi, Omega",
+"Sigma, Theta, Lambda, Epsilon, Mu",
+"Zeta, Eta, Phi, Psi, Chi, Rho, Tau, Kappa, Omicron, Iota",
+"Nu, Xi, Upsilon",
+"Digamma, Koppa, Sampi, Stigma, San, Heta",
+""],
+
+["Food","Name a breakfast food",
+"Eggs, Pancakes, Toast, Cereal, Bacon, Waffles, Oatmeal/porridge",
+"Yogurt/yoghurt, Bagel, Croissant, French toast, Sausage, Muffin, Omelette/omelet, Smoothie, Granola, Hash browns, Avocado toast, Fruit, Scrambled eggs",
+"Eggs Benedict, Crepes, Biscuits and gravy, Breakfast burrito, Burrito, Muesli, Porridge, Kasha, Syrniki, Blini, Cinnamon roll, Danish, Scone, Donut, Shakshuka, Quiche, Frittata, Baked beans, Black pudding, English muffin, Granola bar, Breakfast sandwich, Non and kaymak, Samsa",
+"Congee, Dim sum, Idli, Dosa, Upma, Poha, Paratha, Chilaquiles, Huevos rancheros, Menemen, Simit, Ful medames, Kippers, Kedgeree, Bubble and squeak, Grits, Scrapple, Johnnycake, Tamagoyaki, Natto, Miso soup, Nasi lemak, Roti canai, Pao de queijo, Arepa, Gallo pinto, Muesli bircher, Tvorog, Kefir, Shirguruch, Atala, Halim",
+"Kaya toast, Khao tom, Shrimp and grits, Haggis, Laverbread, Fatteh",
+"!Cake"],
+
+["Tech","Name a video game console",
+"PlayStation/ps1, Xbox, Nintendo Switch/switch, PlayStation 5/ps5, Wii",
+"PlayStation 4/ps4, Xbox One, Xbox Series X/series x, Game Boy/gameboy, Nintendo DS/ds, PlayStation 2/ps2, PlayStation 3/ps3, Xbox 360, Nintendo 64/n64, Super Nintendo/snes, NES/nintendo entertainment system, Steam Deck",
+"GameCube, Wii U, Nintendo 3DS/3ds, PSP, PS Vita/vita, Sega Genesis/mega drive, Game Boy Advance/gba, Game Boy Color, Atari 2600/atari, Dreamcast, Xbox Series S, Switch 2/nintendo switch 2, Sega Saturn, Dendy",
+"Sega Master System, Game Gear, Atari Jaguar, Atari Lynx, TurboGrafx-16/pc engine, Neo Geo, 3DO, Virtual Boy, N-Gage, Ouya, Intellivision, ColecoVision, Magnavox Odyssey, Vectrex, WonderSwan, Neo Geo Pocket, Sega CD, Sega 32X, Nvidia Shield, Analogue Pocket, Playdate, Evercade, ROG Ally, Legion Go, Pippin",
+"Pong, Philips CD-i, Nuon, Tiger, Game.com, Gizmondo, Pippin",
+"!Tamagotchi"],
+
+["Animals","Name an insect",
+"Ant, Bee, Butterfly, Fly, Mosquito, Spider, Ladybug/ladybird",
+"Beetle, Grasshopper, Cockroach, Dragonfly, Wasp, Moth, Cricket, Termite, Flea, Caterpillar, Firefly, Hornet, Praying mantis/mantis, Bumblebee, Locust, Stick insect",
+"Cicada, Earwig, Silverfish, Aphid, Gnat, Louse/lice, Weevil, Damselfly, Mayfly, Horsefly, Fruit fly, Tick, Bedbug, Stink bug, Scarab, Stag beetle, Dung beetle, Katydid, Leafhopper, Lacewing, Hoverfly, Silkworm, Monarch",
+"Mantisfly, Caddisfly, Stonefly, Scorpionfly, Antlion, Thrips, Springtail, Bristletail, Webspinner, Treehopper, Water strider, Backswimmer, Water boatman, Whirligig beetle, Giant water bug, Walking leaf, Weta, Hercules beetle, Goliath beetle, Atlas moth, Luna moth, Death's-head hawkmoth, Bullet ant, Tarantula hawk, Velvet ant, Assassin bug, Cochineal, Dobsonfly, Botfly, Tsetse fly, Sawfly, Ichneumon wasp, Snakefly, Zorapteran",
+"Orchid mantis, Jewel beetle, Peacock spider, Thorn bug, Puss moth caterpillar, Rosy maple moth",
+"Spider"],
+
+["Animals","Name a reptile or amphibian",
+"Snake, Lizard, Turtle, Crocodile, Frog, Alligator",
+"Tortoise, Chameleon, Iguana, Gecko, Toad, Salamander, Komodo dragon, Python, Cobra, Rattlesnake, Newt, Axolotl, Anaconda, Viper, Boa",
+"Sea turtle, Monitor lizard, Bearded dragon, Gila monster, Skink, Caiman, Gharial, Black mamba, King cobra, Tree frog, Poison dart frog, Bullfrog, Garter snake, Corn snake, Copperhead, Cottonmouth, Coral snake, Adder, Mamba, Horned lizard, Frilled lizard, Leatherback, Snapping turtle",
+"Tuatara, Basilisk, Thorny devil, Caecilian, Olm, Hellbender, Mudpuppy, Siren, Glass frog, Goliath frog, Pacman frog, Surinam toad, Cane toad, Fire salamander, Mata mata, Softshell turtle, Box turtle, Terrapin, Inland taipan, Taipan, Boomslang, Sidewinder, Fer-de-lance, Bushmaster, Gaboon viper, Blind snake, Flying snake, Draco, Uromastyx, Anole, Agama, Tegu, Marine iguana, Desert monitor, Steppe tortoise, Gyurza",
+"Purple frog, Hairy frog, Armadillo girdled lizard, Shingleback, Hognose snake, Pig-nosed turtle",
+"!Dragon"],
+
+["Books & Film","Name a Harry Potter character",
+"Harry Potter/harry, Hermione Granger/hermione, Ron Weasley/ron, Dumbledore/albus dumbledore, Voldemort, Snape/severus snape, Hagrid",
+"Draco Malfoy/draco/malfoy, Sirius Black/sirius, Dobby, Ginny Weasley/ginny, Neville Longbottom/neville, Luna Lovegood/luna, McGonagall, Fred Weasley/fred, George Weasley/george, Bellatrix Lestrange/bellatrix, Lupin/remus lupin, Dudley, Hedwig, Cedric Diggory/cedric",
+"Lucius Malfoy, Narcissa Malfoy, Molly Weasley, Arthur Weasley, Percy Weasley, Bill Weasley, Charlie Weasley, Cho Chang, Peter Pettigrew/wormtail, Dolores Umbridge/umbridge, Gilderoy Lockhart/lockhart, Mad-Eye Moody/moody, Tonks, Kreacher, Fawkes, Buckbeak, Crookshanks, Nagini, Hedwig, Vernon Dursley, Petunia Dursley, Lily Potter, James Potter, Moaning Myrtle, Nearly Headless Nick, Filch, Mrs Norris, Quirrell, Slughorn, Trelawney, Firenze, Grindelwald, Fleur Delacour, Viktor Krum, Seamus Finnigan, Dean Thomas, Oliver Wood, Lavender Brown",
+"Aberforth Dumbledore, Ariana Dumbledore, Kingsley Shacklebolt, Rufus Scrimgeour, Cornelius Fudge, Barty Crouch, Ludo Bagman, Rita Skeeter, Xenophilius Lovegood, Griphook, Ollivander, Madam Pomfrey, Madam Hooch, Madam Pince, Professor Sprout, Professor Flitwick, Professor Binns, Fenrir Greyback, Antonin Dolohov, Rodolphus Lestrange, Bartemius Crouch Jr, Igor Karkaroff, Madame Maxime, Hannah Abbott, Ernie Macmillan, Justin Finch-Fletchley, Zacharias Smith, Padma Patil, Parvati Patil, Katie Bell, Angelina Johnson, Lee Jordan, Colin Creevey, Dennis Creevey, Romilda Vane, Cormac McLaggen, Marcus Flint, Pansy Parkinson, Crabbe, Goyle, Blaise Zabini, Teddy Lupin, Scorpius Malfoy, Albus Severus Potter, Rose Weasley, Aragog, Grawp, Winky, Hokey, Peeves, The Fat Lady, Bloody Baron, Fat Friar, Grey Lady, Helena Ravenclaw, Tom Riddle",
+"Mundungus Fletcher, Arabella Figg, Elphias Doge, Dedalus Diggle, Hepzibah Smith, Mafalda Hopkirk, Bathilda Bagshot, Gellert, Ignotus Peverell, Gregorovitch, Stan Shunpike, Ernie Prang",
+"!Fantastic Beasts"],
+
+["Books & Film","Name a Disney animated movie",
+"The Lion King/lion king, Frozen, Aladdin, Cinderella, Toy Story, Moana",
+"Beauty and the Beast, The Little Mermaid/little mermaid, Snow White, Mulan, Tangled, Encanto, Zootopia, Finding Nemo, Lilo and Stitch/lilo & stitch, Sleeping Beauty, Bambi, Dumbo, Pinocchio, Peter Pan, Coco, Up, Cars, Inside Out, Monsters Inc, The Incredibles/incredibles, Frozen 2, Ratatouille, WALL-E/wall e",
+"Pocahontas, The Jungle Book/jungle book, 101 Dalmatians, Lady and the Tramp, Alice in Wonderland, Hercules, Tarzan, Big Hero 6, Wreck-It Ralph, Raya and the Last Dragon, The Princess and the Frog, Bolt, Brave, Fantasia, Robin Hood, The Aristocats/aristocats, The Hunchback of Notre Dame/hunchback, The Emperor's New Groove/emperors new groove, Atlantis, Treasure Planet, Wish, Luca, Turning Red, Elemental, Soul, Onward, A Bug's Life, Toy Story 2, Toy Story 3, Toy Story 4, Finding Dory, Inside Out 2, Moana 2, Monsters University",
+"The Fox and the Hound, The Rescuers, The Sword in the Stone, The Black Cauldron, The Great Mouse Detective, Oliver and Company, The Rescuers Down Under, Dinosaur, Brother Bear, Home on the Range, Chicken Little, Meet the Robinsons, Winnie the Pooh, Strange World, Ralph Breaks the Internet, Zootopia 2, Lightyear, Cars 2, Cars 3, Incredibles 2, The Good Dinosaur, Elio, Saludos Amigos, The Three Caballeros, Make Mine Music, Fun and Fancy Free, Melody Time, The Adventures of Ichabod and Mr. Toad, Fantasia 2000",
+"Victory Through Air Power, The Reluctant Dragon, The Many Adventures of Winnie the Pooh, Song of the South",
+"!Shrek, !Despicable Me, !Kung Fu Panda, !Madagascar, !Spirited Away"],
+
+["Geography","Name a US city",
+"New York/new york city/nyc, Los Angeles/la, Chicago, Miami, Las Vegas, San Francisco, Houston",
+"Boston, Seattle, Dallas, Atlanta, Washington DC, Philadelphia, Phoenix, San Diego, Denver, Austin, Orlando, Detroit, New Orleans, Nashville, Honolulu, Portland, San Antonio",
+"Baltimore, Pittsburgh, Cleveland, Cincinnati, Columbus, Indianapolis, Milwaukee, Minneapolis, St. Louis, Kansas City, Memphis, Charlotte, Raleigh, Tampa, Jacksonville, Sacramento, San Jose, Oakland, Salt Lake City, Albuquerque, Tucson, El Paso, Oklahoma City, Omaha, Anchorage, Buffalo, Newark, Richmond, Louisville, Birmingham",
+"Boise, Spokane, Tacoma, Reno, Fresno, Bakersfield, Santa Fe, Tulsa, Wichita, Lincoln, Des Moines, Madison, Ann Arbor, Grand Rapids, Toledo, Akron, Dayton, Lexington, Knoxville, Chattanooga, Savannah, Charleston, Asheville, Durham, Norfolk, Providence, Hartford, New Haven, Burlington, Portland Maine, Albany, Rochester, Syracuse, Fargo, Sioux Falls, Billings, Cheyenne, Juneau, Fairbanks, Key West, Fort Lauderdale, St. Petersburg, Tallahassee, Mobile, Montgomery, Jackson, Little Rock, Baton Rouge, Shreveport, Lubbock, Amarillo, Corpus Christi, Laredo, Pasadena, Santa Barbara, Palm Springs, Scottsdale, Flagstaff, Sedona, Aspen, Boulder",
+"Truth or Consequences, Intercourse, Boring, Hell, Embarrass, Monowi, Whynot, Peculiar",
+"!Gotham, Springfield"],
+
+["Geography","Name a sea or ocean",
+"Pacific Ocean/pacific, Atlantic Ocean/atlantic, Indian Ocean/indian, Arctic Ocean/arctic, Mediterranean Sea/mediterranean",
+"Southern Ocean/antarctic ocean, Caribbean Sea/caribbean, Red Sea, Black Sea, Dead Sea, Caspian Sea/caspian, Aral Sea, North Sea, Baltic Sea, South China Sea",
+"Arabian Sea, Bering Sea, Sea of Japan/east sea, Yellow Sea, East China Sea, Coral Sea, Tasman Sea, Adriatic Sea, Aegean Sea, Ionian Sea, Tyrrhenian Sea, Ligurian Sea, Sea of Marmara, Sea of Azov, Barents Sea, Kara Sea, Laptev Sea, Norwegian Sea, Irish Sea, Celtic Sea, Sargasso Sea, Gulf of Mexico, Persian Gulf, Bay of Bengal, Hudson Bay, Sea of Okhotsk, Philippine Sea, Andaman Sea, Java Sea, Weddell Sea, Ross Sea",
+"Labrador Sea, Greenland Sea, White Sea, Pechora Sea, East Siberian Sea, Chukchi Sea, Beaufort Sea, Salish Sea, Sea of Cortez, Scotia Sea, Bellingshausen Sea, Amundsen Sea, Davis Sea, Banda Sea, Celebes Sea, Sulu Sea, Timor Sea, Arafura Sea, Bismarck Sea, Solomon Sea, Molucca Sea, Flores Sea, Savu Sea, Seto Inland Sea, Alboran Sea, Balearic Sea, Sea of Crete, Levantine Sea, Libyan Sea, Gulf of Bothnia, Wadden Sea, Sea of the Hebrides, Bohai Sea, Lakshadweep Sea, Gulf of Aden",
+"Sea of Tranquility, Mare Imbrium, Sea of Galilee, Salton Sea, Sea of Hebrides, Cooperation Sea, Riiser-Larsen Sea, King Haakon VII Sea",
+"!Seven Seas"],
+
+["Food","Name a type of bread",
+"White bread, Baguette, Sourdough, Bagel, Croissant, Pita, Naan, Tortilla",
+"Rye, Whole wheat/wholemeal, Brioche, Ciabatta, Focaccia, Cornbread, Bun, Roll, Flatbread, Garlic bread, Pretzel, Banana bread, Multigrain, Lavash, Non/lepyoshka, English muffin, Croissant",
+"Challah, Pumpernickel, Soda bread, Rye bread, Chapati, Roti, Paratha, Matzo, Focaccia, Panettone, Pandoro, Stollen, Ficelle, Bialy, Biscuit, Scone, Crumpet, Arepa, Injera, Pan de sal, Pao de queijo, Simit, Obi non, Patir, Tandir non",
+"Grissini, Pane carasau, Piadina, Lefse, Knäckebröd/knackebrod, Limpa, Borodinsky, Kalach, Khachapuri, Lahmajoun, Barbari, Sangak, Taftan, Puri, Bhatura, Kulcha, Appam, Bao, Mantou, Shokupan, Melonpan, Pan dulce, Bolillo, Telera, Conchas, Cozonac, Pogaca, Tsoureki, Fougasse, Pain de mie, Fry bread, Bannock, Johnnycake, Hushpuppy, Damper, Laufabraud, Rugbrod",
+"Gyeongju bread, Pane di Altamura, Hardtack, Manchet, Anpan, Kürtőskalács/kurtoskalacs",
+"Banana bread"]
+];
+
+const TIER_POINTS = [10, 30, 60, 85, 100];
+const DECOY_POINTS = 15;
+</script>
+<script>// ---------- Rare Reef engine: answer matching, scoring, bots (no DOM) ----------
+const TIERS = {
+  0: { key: 'seafoam',   name: 'Seafoam',   pts: 10,  meter: 0,   color: '#9fd8e8', emoji: '🫧' },
+  D: { key: 'copycat',   name: 'Copycat',   pts: 15,  meter: 0,   color: '#c3b4ff', emoji: '🦜' },
+  1: { key: 'reef',      name: 'Reef',      pts: 30,  meter: 20,  color: '#4fd1a5', emoji: '🐠' },
+  2: { key: 'rare',      name: 'Rare',      pts: 60,  meter: 35,  color: '#36a8ff', emoji: '🐙' },
+  3: { key: 'abyssal',   name: 'Abyssal',   pts: 85,  meter: 65,  color: '#a46bff', emoji: '🦑' },
+  4: { key: 'leviathan', name: 'Leviathan', pts: 100, meter: 100, color: '#ffcc33', emoji: '🐋' },
+};
+const TIER_BLURB = {
+  0: 'The answer everyone gives.',
+  D: 'Felt clever — but loads of people pick it.',
+  1: 'Solid, a little off the beaten path.',
+  2: 'Most people won’t think of that.',
+  3: 'Deep knowledge. Very few say this.',
+  4: 'One in a million. Legendary pull.',
+};
+
+function norm(s) {
+  return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/ø/g, 'o').replace(/æ/g, 'ae').replace(/ß/g, 'ss').replace(/&/g, ' and ')
+    .replace(/['’`.]/g, '').replace(/[^a-z0-9+#]+/g, ' ').trim()
+    .replace(/^(the|a|an) /, '');
+}
+const keyOf = s => norm(s).replace(/ /g, '');
+
+// edit distance that counts a swapped pair of letters as one typo ("germnay" -> "germany")
+function lev(a, b, max) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  const n = a.length, m = b.length, d = [];
+  for (let i = 0; i <= n; i++) { d[i] = new Array(m + 1).fill(0); d[i][0] = i; }
+  for (let j = 0; j <= m; j++) d[0][j] = j;
+  for (let i = 1; i <= n; i++) {
+    let rowBest = Infinity;
+    for (let j = 1; j <= m; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      let v = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) v = Math.min(v, d[i - 2][j - 2] + 1);
+      d[i][j] = v; if (v < rowBest) rowBest = v;
+    }
+    if (rowBest > max) return max + 1;
+  }
+  return d[n][m];
+}
+
+// Build one category from its raw row
+function buildCategory(raw, id) {
+  const [pack, prompt, t0, t1, t2, t3, t4, decoy] = raw;
+  const items = [], map = new Map();
+  const addKeys = (item, k) => { if (k && !map.has(k)) map.set(k, item); };
+  const add = (str, tier) => {
+    let s = str.trim(); if (!s) return;
+    let trap = false;
+    if (s[0] === '!') { trap = true; s = s.slice(1).trim(); }
+    const names = s.split('/').map(x => x.trim()).filter(Boolean);
+    const keys = names.map(keyOf).filter(Boolean);
+    if (keys.some(k => map.has(k) && !map.get(k).trap)) return; // first/decoy occurrence wins
+    const item = { name: names[0], keys, tier: trap ? 'X' : tier, trap, idx: items.length };
+    items.push(item);
+    for (const k of keys) {
+      addKeys(item, k);
+      if (k.length > 3 && k.endsWith('s')) addKeys(item, k.slice(0, -1)); // "peas" also accepts "pea"
+    }
+  };
+  (decoy || '').split(',').forEach(x => add(x, 'D'));
+  [t0, t1, t2, t3, t4].forEach((list, tier) => (list || '').split(',').forEach(x => add(x, tier)));
+  const valid = items.filter(i => !i.trap);
+  return { id, pack, prompt, items, valid, map };
+}
+
+function buildBank(rows) { return rows.map((r, i) => buildCategory(r, i)).filter(c => c.valid.length >= 6); }
+
+// Resolve typed text to an item in the category.
+// returns { item, exact } or null. Trap items come back with item.trap === true.
+function matchAnswer(cat, text) {
+  const k = keyOf(text);
+  if (!k) return null;
+  const cands = [k];
+  if (k.length > 3 && k.endsWith('es')) cands.push(k.slice(0, -2));
+  if (k.length > 3 && k.endsWith('s')) cands.push(k.slice(0, -1));
+  if (k.length > 3 && k.endsWith('ies')) cands.push(k.slice(0, -3) + 'y');
+  for (const c of cands) if (cat.map.has(c)) return { item: cat.map.get(c), exact: true };
+  if (k.length < 5) return null;
+  const max = k.length >= 9 ? 2 : 1;
+  let best = max + 1, bestItem = null, tie = false;
+  for (const [key, item] of cat.map) {
+    if (key.length < 4) continue;
+    const d = lev(k, key, max);
+    if (d < best) { best = d; bestItem = item; tie = false; }
+    else if (d === best && item !== bestItem) tie = true;
+  }
+  if (bestItem && best <= max && !tie) return { item: bestItem, exact: false };
+  return null;
+}
+
+const tierOf = item => TIERS[item.tier];
+const pointsOf = item => (item.trap ? 0 : TIERS[item.tier].pts);
+
+function sampleTier(cat, tier, n, exclude) {
+  const pool = cat.valid.filter(i => i.tier === tier && i !== exclude);
+  const out = [];
+  while (pool.length && out.length < n) out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  return out;
+}
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+// A never-ending shuffled supply of category indexes ("no limit")
+class PromptBag {
+  constructor(bank, minItems = 0) { this.ids = bank.filter(c => c.valid.length >= minItems).map(c => c.id); this.bag = []; this.last = -1; }
+  next() {
+    if (!this.bag.length) { this.bag = shuffle(this.ids.slice()); if (this.bag[this.bag.length - 1] === this.last) this.bag.reverse(); }
+    this.last = this.bag.pop(); return this.last;
+  }
+}
+
+// ---------- bots ----------
+const BOT_LEVELS = {
+  easy:   { label: 'Easy',   weights: [6, 1, 3, 1, 0.2, 0.05], think: [2.4, 5.6], fail: 0.16 },
+  normal: { label: 'Normal', weights: [4, 1.2, 4, 2, 0.7, 0.2], think: [1.6, 4.2], fail: 0.09 },
+  hard:   { label: 'Hard',   weights: [2, 0.6, 3, 3, 2, 1],     think: [1.0, 3.0], fail: 0.04 },
+};
+const TIER_ORDER = [0, 'D', 1, 2, 3, 4];
+// pick an unused valid item the way a bot of this level would
+function botPick(cat, used, level, rnd = Math.random) {
+  const L = BOT_LEVELS[level] || BOT_LEVELS.normal;
+  const free = cat.valid.filter(i => !used.has(i.idx));
+  if (!free.length) return null;
+  const byTier = TIER_ORDER.map(t => free.filter(i => i.tier === t));
+  const w = byTier.map((list, k) => (list.length ? L.weights[k] : 0));
+  let r = rnd() * w.reduce((a, b) => a + b, 0);
+  for (let k = 0; k < w.length; k++) { if ((r -= w[k]) <= 0 && byTier[k].length) return byTier[k][Math.floor(rnd() * byTier[k].length)]; }
+  return free[Math.floor(rnd() * free.length)];
+}
+// plausible wrong guesses bots sometimes type
+const BOT_FLUBS = ['umm', 'wait', 'uhh', 'hmm', 'idk', 'no', 'eh'];
+
+if (false) module.exports = { TIERS, TIER_BLURB, norm, keyOf, lev, buildCategory, buildBank, matchAnswer, tierOf, pointsOf, sampleTier, shuffle, PromptBag, BOT_LEVELS, botPick, BOT_FLUBS };
+</script>
+<script>(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const rand = (a, b) => a + Math.random() * (b - a);
+const fmt = n => Math.round(n).toLocaleString('en-US');
+
+const BANK = buildBank(BANK_RAW);
+const PACKS = [...new Set(BANK.map(c => c.pack))];
+
+// ---------- storage (optional) ----------
+const store = {
+  get() { try { return JSON.parse(localStorage.getItem('rr.v1') || '{}'); } catch { return {}; } },
+  set(v) { try { localStorage.setItem('rr.v1', JSON.stringify(v)); } catch {} },
+  patch(fn) { const v = this.get(); fn(v); this.set(v); },
+};
+
+// ---------- sound ----------
+const Sound = {
+  ctx: null, muted: !!store.get().muted,
+  init() { if (this.ctx) return; try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} },
+  tone(freq, dur = 0.12, type = 'sine', vol = 0.12, slide = 0) {
+    if (this.muted || !this.ctx) return;
+    const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(40, freq * slide), t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(this.ctx.destination); o.start(t); o.stop(t + dur + 0.02);
+  },
+  noise(dur = 0.4, vol = 0.35) {
+    if (this.muted || !this.ctx) return;
+    const n = this.ctx.sampleRate * dur, b = this.ctx.createBuffer(1, n, this.ctx.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.5);
+    const s = this.ctx.createBufferSource(), g = this.ctx.createGain(), f = this.ctx.createBiquadFilter();
+    f.type = 'lowpass'; f.frequency.value = 900; s.buffer = b; g.gain.value = vol; s.connect(f).connect(g).connect(this.ctx.destination); s.start();
+  },
+  good(tier) { const base = { 0: 520, D: 560, 1: 620, 2: 700, 3: 800, 4: 900 }[tier] || 600; this.tone(base, .12, 'triangle', .14); setTimeout(() => this.tone(base * 1.5, .18, 'triangle', .12), 90); if (tier === 4 || tier === 3) setTimeout(() => this.tone(base * 2, .25, 'sine', .1), 190); },
+  bad() { this.tone(180, .22, 'square', .07, .7); },
+  tick(hi) { this.tone(hi ? 1250 : 900, .04, 'square', .035); },
+  pop() { this.noise(.5, .5); this.tone(120, .35, 'sine', .3, .4); },
+  win() { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.tone(f, .22, 'triangle', .13), i * 120)); },
+  bubble() { this.tone(rand(500, 900), .08, 'sine', .05, 1.8); },
+};
+document.addEventListener('pointerdown', () => Sound.init(), { once: false });
+document.addEventListener('keydown', () => Sound.init(), { once: true });
+
+// ---------- ocean background ----------
+const Sea = (() => {
+  const cv = $('#sea'), cx = cv.getContext('2d');
+  let W = 0, H = 0, dpr = 1, depth = 0, target = 0, t = 0;
+  const bubbles = [], snow = [], parts = [];
+  const STOPS = [[0, [52, 170, 222], [13, 95, 145]], [600, [16, 84, 132], [6, 46, 82]], [2000, [8, 40, 78], [4, 18, 40]], [4500, [6, 18, 42], [3, 7, 20]], [7000, [5, 7, 20], [1, 2, 6]]];
+  const mix = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
+  function colors(d) {
+    for (let i = 0; i < STOPS.length - 1; i++) {
+      const [d0, t0, b0] = STOPS[i], [d1, t1, b1] = STOPS[i + 1];
+      if (d <= d1) { const k = Math.max(0, (d - d0) / (d1 - d0)); return [mix(t0, t1, k), mix(b0, b1, k)]; }
+    }
+    return [STOPS[STOPS.length - 1][1], STOPS[STOPS.length - 1][2]];
+  }
+  function resize() { dpr = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  addEventListener('resize', resize); resize();
+  for (let i = 0; i < 38; i++) bubbles.push({ x: Math.random(), y: Math.random(), r: rand(1.5, 6), s: rand(14, 46), w: rand(0, 6) });
+  for (let i = 0; i < 90; i++) snow.push({ x: Math.random(), y: Math.random(), r: rand(.6, 1.8), s: rand(4, 12) });
+  function burst(x, y, color, n = 26, power = 1) {
+    for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2, v = rand(120, 420) * power; parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1, r: rand(3, 8), c: color }); }
+  }
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now; t += dt;
+    depth += (target - depth) * Math.min(1, dt * 1.6);
+    const [top, bot] = colors(depth);
+    const g = cx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, `rgb(${top})`); g.addColorStop(1, `rgb(${bot})`);
+    cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+    const light = Math.max(0, 1 - depth / 900);
+    if (light > 0) { // sun rays near the surface
+      cx.save(); cx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 6; i++) {
+        const x = (i / 6 + Math.sin(t * .15 + i) * .04) * W, w = W * .07;
+        const rg = cx.createLinearGradient(0, 0, 0, H * .9); rg.addColorStop(0, `rgba(190,240,255,${.10 * light})`); rg.addColorStop(1, 'rgba(190,240,255,0)');
+        cx.fillStyle = rg; cx.beginPath(); cx.moveTo(x, 0); cx.lineTo(x + w, 0); cx.lineTo(x + w * 2.4 - W * .1, H * .9); cx.lineTo(x - W * .1, H * .9); cx.fill();
+      }
+      cx.restore();
+    }
+    const deep = Math.min(1, depth / 2500);
+    cx.fillStyle = `rgba(220,240,255,${.25 + .35 * deep})`;
+    for (const p of snow) { p.y += p.s * dt / H * (0.6 + deep); if (p.y > 1) { p.y = 0; p.x = Math.random(); } cx.beginPath(); cx.arc(p.x * W + Math.sin(t + p.y * 9) * 6, p.y * H, p.r, 0, 7); cx.fill(); }
+    for (const b of bubbles) {
+      b.y -= b.s * dt / H; if (b.y < -0.05) { b.y = 1.05; b.x = Math.random(); }
+      const x = b.x * W + Math.sin(t * 1.3 + b.w) * 8, y = b.y * H;
+      cx.strokeStyle = `rgba(255,255,255,${.25 + .1 * light})`; cx.lineWidth = 1.2; cx.beginPath(); cx.arc(x, y, b.r, 0, 7); cx.stroke();
+      cx.fillStyle = 'rgba(255,255,255,.35)'; cx.beginPath(); cx.arc(x - b.r * .35, y - b.r * .35, b.r * .28, 0, 7); cx.fill();
+    }
+    if (depth > 3500) { // bioluminescent specks in the abyss
+      const k = Math.min(1, (depth - 3500) / 2500);
+      for (let i = 0; i < 14; i++) { const x = (Math.sin(i * 91.7 + t * .07) * .5 + .5) * W, y = (Math.cos(i * 37.3 + t * .05) * .5 + .5) * H, a = (Math.sin(t * 2 + i) * .5 + .5) * k;
+        cx.fillStyle = `rgba(110,255,230,${a * .7})`; cx.beginPath(); cx.arc(x, y, 2.2, 0, 7); cx.fill(); }
+    }
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i]; p.life -= dt * 1.4; if (p.life <= 0) { parts.splice(i, 1); continue; }
+      p.vx *= .96; p.vy = p.vy * .96 + 40 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      cx.globalAlpha = Math.max(0, p.life); cx.fillStyle = p.c; cx.beginPath(); cx.arc(p.x, p.y, p.r * p.life + 1, 0, 7); cx.fill(); cx.globalAlpha = 1;
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  return { set(d, instant) { target = d; if (instant) depth = d; }, burst };
+})();
+
+// ---------- screens ----------
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); }
+function flash(kind = 'red') { const f = $('#flash'); f.className = kind === 'white' ? 'on white' : 'on'; setTimeout(() => f.className = '', kind === 'white' ? 120 : 260); }
+function modal(html, onMount) { const m = $('#modal'), c = $('#modalCard'); c.innerHTML = html; m.hidden = false; onMount && onMount(c); }
+function closeModal() { $('#modal').hidden = true; }
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+const tierChip = (tier, txt) => { const T = TIERS[tier]; return `<span class="tchip" style="background:${T.color}">${T.emoji} ${esc(txt ?? T.name)}</span>`; };
+
+// ---------- home ----------
+let packSel = new Set(store.get().packs || []);
+function renderHome() {
+  Sea.set(80);
+  const packs = $('#packs'); packs.innerHTML = '';
+  const all = el('button', 'pack' + (packSel.size === 0 ? ' on' : ''), 'All packs'); all.onclick = () => { packSel.clear(); savePacks(); };
+  packs.append(all);
+  for (const p of PACKS) { const b = el('button', 'pack' + (packSel.has(p) ? ' on' : ''), esc(p)); b.onclick = () => { packSel.has(p) ? packSel.delete(p) : packSel.add(p); if (packSel.size === PACKS.length) packSel.clear(); savePacks(); }; packs.append(b); }
+  const s = store.get();
+  $('#stats').innerHTML = `<div class="stat"><b>${fmt(s.bestDepth || 0)} m</b><span>Deepest dive</span></div><div class="stat"><b>${s.bestEndless || 0}</b><span>Endless best</span></div><div class="stat"><b>${s.dives || 0}</b><span>Dives</span></div><div class="stat"><b>${s.partyWins || 0}</b><span>Puffer wins</span></div>`;
+  $('#legend').innerHTML = [0, 'D', 1, 2, 3, 4].map(k => tierChip(k, `${TIERS[k].name} ${TIERS[k].pts}`)).join('');
+  show('home');
+}
+function savePacks() { store.patch(v => v.packs = [...packSel]); renderHome(); }
+const catPool = () => BANK.filter(c => packSel.size === 0 || packSel.has(c.pack));
+$('#howBtn').onclick = () => modal(`<h3>How scoring works</h3><p>Every prompt has hundreds of correct answers. Obvious ones barely count; rare ones send you deep. Every point is 10 m of depth.</p>
+  ${[0, 'D', 1, 2, 3, 4].map(k => `<div class="trow">${tierChip(k)}<div><b>${TIERS[k].pts} pts</b> · ${TIERS[k].pts * 10} m<br><small>${TIER_BLURB[k]}</small></div></div>`).join('')}
+  <p><b>Typos are fine</b>: small spelling slips and plurals still count. A wrong answer doesn't cost anything while the clock runs, so try again.</p>
+  <button class="cta blue" onclick="document.getElementById('modal').hidden=true">Got it</button>`);
+$('#goDive').onclick = () => startDive('dive');
+$('#goEndless').onclick = () => startDive('endless');
+$('#goParty').onclick = () => openSetup();
+
+// ---------- DIVE ----------
+const ZONES = [[0, 'Sunlight Zone'], [200, 'Twilight Zone'], [1000, 'Midnight Zone'], [4000, 'Abyssal Zone'], [6000, 'Hadal Trench']];
+const zoneOf = m => ZONES.filter(z => m >= z[0]).pop()[1];
+const ROUND_TIME = 25;
+let D = null;
+function startDive(mode) {
+  const pool = catPool();
+  D = { mode, rounds: [], points: 0, depth: 0, lives: 3, bag: new PromptBag(pool), total: mode === 'dive' ? 7 : Infinity, timer: 0, live: false };
+  Sea.set(0, true);
+  buildGauge();
+  show('dive');
+  nextRound();
+}
+function buildGauge() {
+  const tr = $('#gaugeTrack'); tr.innerHTML = '';
+  const max = gaugeMax();
+  for (const [m, name] of ZONES) { const i = el('i', null, name.replace(' Zone', '')); i.style.top = (m / max * 100) + '%'; tr.append(i); }
+  const i = el('i', null, fmt(max) + ' m'); i.style.top = '100%'; tr.append(i);
+}
+const gaugeMax = () => Math.max(7000, Math.ceil((D ? D.depth + 1500 : 0) / 1000) * 1000);
+function updateDepth() {
+  $('#depthLbl').textContent = fmt(D.depth) + ' m';
+  const max = gaugeMax(); if (max !== D._gmax) { D._gmax = max; buildGauge(); }
+  $('#gaugeSub').style.top = Math.min(100, D.depth / max * 100) + '%';
+  Sea.set(D.depth);
+}
+function nextRound() {
+  const cat = BANK[D.bag.next()];
+  D.cat = cat; D.timeLeft = ROUND_TIME; D.live = true; D.tries = 0;
+  const n = D.rounds.length + 1;
+  $('#roundLbl').textContent = D.mode === 'dive' ? `${n} / ${D.total}` : `Prompt ${n}`;
+  $('#lives').innerHTML = D.mode === 'endless' ? [0, 1, 2].map(i => `<span class="${i < D.lives ? '' : 'gone'}">🫧</span>`).join('') : '';
+  $('#packChip').textContent = cat.pack;
+  $('#promptTxt').textContent = cat.prompt;
+  $('#msg').textContent = ''; $('#msg').className = 'msg';
+  $('#reveal').innerHTML = '';
+  $('#promptCard').style.display = '';
+  const inp = $('#answer'); inp.value = ''; inp.disabled = false; inp.focus();
+  updateDepth();
+  const card = $('#promptCard'); card.classList.remove('shake'); card.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 350, easing: 'cubic-bezier(.2,.8,.2,1)' });
+  cancelAnimationFrame(D.timer); let last = performance.now();
+  const tick = now => {
+    if (!D || !D.live) return;
+    D.timeLeft -= (now - last) / 1000; last = now;
+    const f = Math.max(0, D.timeLeft / ROUND_TIME);
+    $('#timerFill').style.transform = `scaleX(${f})`;
+    $('#timerTxt').textContent = Math.ceil(Math.max(0, D.timeLeft));
+    $('.timer').classList.toggle('low', D.timeLeft < 6);
+    if (D.timeLeft <= 0) return finishRound(null, 'time');
+    D.timer = requestAnimationFrame(tick);
+  };
+  D.timer = requestAnimationFrame(tick);
+}
+$('#answerForm').addEventListener('submit', e => {
+  e.preventDefault(); if (!D || !D.live) return;
+  const txt = $('#answer').value.trim(); if (!txt) return;
+  const r = matchAnswer(D.cat, txt);
+  const msg = $('#msg');
+  if (!r) { D.tries++; msg.textContent = D.tries > 1 ? 'Still not on our list. Try something else!' : 'Not on our list. Check the spelling or try another.'; msg.className = 'msg'; bump('#promptCard'); Sound.bad(); $('#answer').select(); return; }
+  if (r.item.trap) { msg.textContent = `Nice try, but ${r.item.name} doesn't count here!`; msg.className = 'msg'; bump('#promptCard'); Sound.bad(); $('#answer').select(); return; }
+  finishRound(r.item, 'answer', txt);
+});
+$('#passBtn').onclick = () => D && D.live && finishRound(null, 'pass');
+function bump(sel) { const n = $(sel); n.classList.remove('shake'); void n.offsetWidth; n.classList.add('shake'); }
+function finishRound(item, why, typed) {
+  D.live = false; cancelAnimationFrame(D.timer);
+  $('#answer').disabled = true;
+  const pts = item ? pointsOf(item) : 0;
+  D.points += pts; D.depth += pts * 10;
+  D.rounds.push({ prompt: D.cat.prompt, item, typed, pts });
+  if (!item && D.mode === 'endless') D.lives--;
+  const over = D.mode === 'dive' ? D.rounds.length >= D.total : D.lives <= 0;
+  const T = item && tierOf(item);
+  const rare = [...sampleTier(D.cat, 4, 2, item), ...sampleTier(D.cat, 3, 2, item)].slice(0, 4);
+  const common = sampleTier(D.cat, 0, 3, item);
+  const pill = i => `<span class="ans" style="background:${TIERS[i.tier].color}">${esc(i.name)}</span>`;
+  $('#promptCard').style.display = 'none';
+  $('#reveal').innerHTML = (item
+    ? `<div class="tier-card" style="background:linear-gradient(160deg, ${T.color}, ${shade(T.color)})"><div class="t-emoji">${T.emoji}</div><div class="t-name">${T.name}</div><div class="t-ans">“${esc(item.name)}” · ${esc(D.cat.prompt)}</div><div class="t-pts">+${pts} pts · +${fmt(pts * 10)} m</div><div class="t-blurb">${TIER_BLURB[item.tier]}</div></div>`
+    : `<div class="tier-card miss"><div class="t-emoji">${why === 'time' ? '⏱️' : '🪨'}</div><div class="t-name">${why === 'time' ? 'Out of time' : 'Passed'}</div><div class="t-ans">${esc(D.cat.prompt)}</div><div class="t-pts">+0 m${D.mode === 'endless' ? ` · ${D.lives} air left` : ''}</div></div>`)
+    + `<div class="alts">${rare.length ? `<div class="alt"><b>Rarer catches you could have said</b>${rare.map(pill).join('')}</div>` : ''}<div class="alt"><b>What most people say</b>${common.map(pill).join('')}</div></div>`
+    + `<button class="cta blue next" id="nextBtn">${over ? 'See my dive ↓' : 'Next prompt ↓'}</button>`;
+  if (item) { Sound.good(item.tier); if (item.tier === 4 || item.tier === 3) { const r = $('.tier-card').getBoundingClientRect(); Sea.burst(r.left + r.width / 2, r.top + 40, T.color, 30); } }
+  else Sound.bad();
+  updateDepth();
+  const nb = $('#nextBtn'); nb.onclick = () => (over ? showResults() : nextRound()); setTimeout(() => nb.focus(), 50);
+}
+function shade(hex) { const n = parseInt(hex.slice(1), 16); const f = v => Math.max(0, Math.round(v * .78)); return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`; }
+$('#diveBack').onclick = () => { if (D) { D.live = false; cancelAnimationFrame(D.timer); } renderHome(); };
+
+function showResults() {
+  const s = store.get();
+  const newBest = D.mode === 'dive' ? D.depth > (s.bestDepth || 0) : D.rounds.length > (s.bestEndless || 0);
+  store.patch(v => { v.dives = (v.dives || 0) + 1; if (D.mode === 'dive') v.bestDepth = Math.max(v.bestDepth || 0, D.depth); else v.bestEndless = Math.max(v.bestEndless || 0, D.rounds.filter(r => r.item).length); });
+  const emo = D.rounds.map(r => (r.item ? TIERS[r.item.tier].emoji : '⬛')).join('');
+  const share = `🌊 Rare Reef ${D.mode === 'dive' ? 'Dive' : 'Endless'}\n${fmt(D.depth)} m · ${zoneOf(D.depth)}${D.mode === 'endless' ? ` · ${D.rounds.length} prompts` : ''}\n${emo}`;
+  const wrap = $('#resWrap');
+  wrap.innerHTML = `<div class="topbar"><button class="icon-btn" id="resBack">←</button><div class="round">${D.mode === 'dive' ? 'Dive complete' : 'Out of air'}</div><div></div></div>
+    <div class="res-hero"><div class="zone">${zoneOf(D.depth)}${newBest ? ' · new best!' : ''}</div><div class="big-num">${fmt(D.depth)} m</div><div class="sub">${fmt(D.points)} points${D.mode === 'endless' ? ` · ${D.rounds.length} prompts` : ''}</div><div class="emoji-row">${emo}</div></div>
+    <div class="res-btns"><button class="cta blue" id="again">Dive again</button><button class="cta ghost" id="copyBtn">Copy result</button></div>
+    <div class="res-list">${D.rounds.map(r => `<div class="res-row"><div class="q">${esc(r.prompt)}</div><div class="a">${r.item ? esc(r.item.name) : '—'}</div><div class="p">${r.item ? tierChip(r.item.tier, '+' + r.pts) : '<span class="tchip" style="background:#5b6b78;color:#fff">+0</span>'}</div></div>`).join('')}</div>
+    <button class="cta ghost" id="toParty">🐡 Try Puffer Panic</button>`;
+  Sea.set(D.depth);
+  show('results');
+  if (newBest) Sound.win();
+  $('#again').onclick = () => startDive(D.mode);
+  $('#resBack').onclick = renderHome;
+  $('#toParty').onclick = openSetup;
+  $('#copyBtn').onclick = async () => {
+    try { await navigator.clipboard.writeText(share); $('#copyBtn').textContent = 'Copied ✓'; }
+    catch { modal(`<h3>Your result</h3><p>Copy this:</p><textarea style="width:100%;height:120px;border-radius:14px;padding:12px;font:600 15px Inter;background:#06202f;color:#fff;border:1px solid #2a4a5e">${esc(share)}</textarea><button class="cta blue" onclick="document.getElementById('modal').hidden=true">Done</button>`, c => c.querySelector('textarea').select()); }
+  };
+}
+
+// ---------- PUFFER PANIC ----------
+const COLORS = ['#ff6b5a', '#36a8ff', '#4fd1a5', '#ffb020', '#a46bff', '#ff5fa2', '#22c3d6', '#8bc34a'];
+const BOT_NAMES = ['Bubbles', 'Coral', 'Finn', 'Pearl', 'Kelp', 'Shelly', 'Inky', 'Ripple', 'Gill', 'Misty', 'Squirt', 'Wade'];
+const SPEEDS = { chill: { start: 15, step: .5, min: 7 }, normal: { start: 12, step: .6, min: 5 }, frantic: { start: 9, step: .6, min: 3 } };
+const cfg = Object.assign({ pmode: 'bots', bots: 3, level: 'normal', lives: 2, speed: 'normal', names: ['', ''], you: '' }, store.get().party || {});
+function segBind(id, key, conv = v => v) {
+  const s = $(id);
+  [...s.children].forEach(b => { b.classList.toggle('on', String(cfg[key]) === b.dataset.v); b.onclick = () => { cfg[key] = conv(b.dataset.v); [...s.children].forEach(x => x.classList.toggle('on', x === b)); saveCfg(); if (key === 'pmode') syncMode(); }; });
+}
+function saveCfg() { store.patch(v => v.party = cfg); }
+function syncMode() { $('#botsCfg').hidden = cfg.pmode !== 'bots'; $('#localCfg').hidden = cfg.pmode !== 'local'; renderPlist(); }
+function renderPlist() {
+  const l = $('#plist'); l.innerHTML = '';
+  cfg.names.forEach((n, i) => {
+    const r = el('div', 'pr'); const dot = el('div', 'dot'); dot.style.background = COLORS[i % COLORS.length];
+    const inp = el('input'); inp.maxLength = 14; inp.placeholder = 'Player ' + (i + 1); inp.value = n; inp.oninput = () => { cfg.names[i] = inp.value; saveCfg(); };
+    r.append(dot, inp);
+    if (cfg.names.length > 2) { const x = el('button', 'icon-btn', '✕'); x.onclick = () => { cfg.names.splice(i, 1); saveCfg(); renderPlist(); }; r.append(x); }
+    l.append(r);
+  });
+  $('#addP').style.display = cfg.names.length >= 8 ? 'none' : '';
+}
+$('#addP').onclick = () => { if (cfg.names.length < 8) { cfg.names.push(''); saveCfg(); renderPlist(); } };
+function openSetup() {
+  Sea.set(260);
+  segBind('#pmode', 'pmode'); segBind('#botCount', 'bots', Number); segBind('#botLevel', 'level'); segBind('#lifeSeg', 'lives', Number); segBind('#speedSeg', 'speed');
+  $('#youName').value = cfg.you || ''; $('#youName').oninput = e => { cfg.you = e.target.value; saveCfg(); };
+  syncMode(); show('setup');
+}
+$('#setupBack').onclick = renderHome;
+$('#wake').onclick = () => startParty();
+
+let P = null;
+function startParty() {
+  const players = [];
+  if (cfg.pmode === 'bots') {
+    players.push({ name: (cfg.you || '').trim() || 'You', human: true });
+    const names = shuffle(BOT_NAMES.slice());
+    for (let i = 0; i < cfg.bots; i++) players.push({ name: names[i], bot: cfg.level });
+  } else cfg.names.forEach((n, i) => players.push({ name: n.trim() || 'Player ' + (i + 1), human: true }));
+  players.forEach((p, i) => Object.assign(p, { id: i, color: COLORS[i % COLORS.length], hearts: cfg.lives, meter: 0, out: false, answers: 0, best: null, pops: 0 }));
+  const sp = SPEEDS[cfg.speed];
+  P = { players, sp, cap: Math.min(6, cfg.lives + 2), bag: new PromptBag(catPool().length >= 3 ? catPool() : BANK, 30), used: new Set(), passes: 0, phase: 'freeze', cur: Math.floor(Math.random() * players.length), raf: 0, tickAcc: 0, local: cfg.pmode === 'local' };
+  Sea.set(260);
+  show('party');
+  buildSeats();
+  newCategory();
+  $('#usedList').innerHTML = '';
+  setTimeout(() => beginTurn(), 700);
+  let last = performance.now();
+  const loop = now => { if (!P) return; const dt = Math.min(.1, (now - last) / 1000); last = now; partyTick(dt); P.raf = requestAnimationFrame(loop); };
+  P.raf = requestAnimationFrame(loop);
+}
+function newCategory() {
+  P.cat = BANK[P.bag.next()]; P.used = new Set(); P.passes = 0;
+  const b = $('.cat-banner'); b.classList.remove('new'); void b.offsetWidth; b.classList.add('new');
+  $('#pPack').textContent = P.cat.pack; $('#pPrompt').textContent = P.cat.prompt; $('#pUsed').textContent = `${P.cat.valid.length} answers · 0 said`;
+  $('#usedList').innerHTML = '';
+}
+function buildSeats() {
+  const ring = $('#ring'); ring.innerHTML = '';
+  for (const p of P.players) {
+    const s = el('div', 'seat');
+    s.innerHTML = `<div class="bubble"></div><div class="av" style="background:${p.color}">${esc(p.name[0].toUpperCase())}</div><div class="nm">${esc(p.name)}${p.bot ? ' 🤖' : ''}</div><div class="hearts"></div><div class="meter"><i></i></div>`;
+    p.el = s; ring.append(s);
+  }
+  layoutSeats(); renderSeats();
+}
+function layoutSeats() {
+  if (!P) return;
+  const a = $('#arena').getBoundingClientRect(), n = P.players.length;
+  const cxp = a.width / 2, cyp = a.height / 2 - 8, compact = innerHeight <= 500, rx = Math.max(90, Math.min(a.width / 2 - 64, compact ? 300 : 360)), ry = Math.max(compact ? 44 : 80, Math.min(a.height / 2 - (compact ? 34 : 72), 240));
+  P.players.forEach((p, i) => {
+    const ang = Math.PI / 2 + (i / n) * Math.PI * 2; p.ang = ang;
+    p.el.style.left = (cxp + Math.cos(ang) * rx) + 'px'; p.el.style.top = (cyp + Math.sin(ang) * ry) + 'px';
+    p.sx = cxp + Math.cos(ang) * rx; p.sy = cyp + Math.sin(ang) * ry;
+  });
+  pointAt(P.cur);
+}
+addEventListener('resize', layoutSeats);
+function renderSeats() {
+  for (const p of P.players) {
+    p.el.classList.toggle('out', p.out); p.el.classList.toggle('turn', !p.out && p.id === P.cur && P.phase !== 'over');
+    p.el.querySelector('.hearts').textContent = p.out ? '☠️' : '❤️'.repeat(p.hearts);
+    p.el.querySelector('.meter i').style.width = Math.min(100, p.meter) + '%';
+  }
+}
+function pointAt(id) {
+  const p = P.players[id]; if (!p || p.sx == null) return;
+  const a = $('#arena').getBoundingClientRect();
+  const deg = Math.atan2(p.sy - (a.height / 2 - 8), p.sx - a.width / 2) * 180 / Math.PI;
+  $('#pointer').style.transform = `rotate(${deg}deg)`;
+  const pf = $('#puffer'); pf.style.transform = `scaleX(${Math.cos(deg * Math.PI / 180) < 0 ? -1 : 1})`;
+}
+const alive = () => P.players.filter(p => !p.out);
+function nextAlive(from) { const n = P.players.length; for (let k = 1; k <= n; k++) { const p = P.players[(from + k) % n]; if (!p.out) return p.id; } return from; }
+function bubble(p, txt, kind = '') { const b = p.el.querySelector('.bubble'); b.textContent = txt; b.className = 'bubble' + (txt ? ' on' : '') + (kind ? ' ' + kind : ''); }
+
+function beginTurn() {
+  if (!P) return;
+  if (P.cat.valid.length - P.used.size < 3) newCategory(); // category nearly exhausted
+  const p = P.players[P.cur];
+  P.phase = 'turn';
+  P.turnTime = Math.max(P.sp.min, P.sp.start - P.sp.step * P.passes);
+  P.timeLeft = P.turnTime; P.tickAcc = 0;
+  pointAt(P.cur); renderSeats();
+  P.players.forEach(q => q !== p && bubble(q, ''));
+  const inp = $('#pInput'), lbl = $('#turnLbl'), msg = $('#pMsg');
+  msg.textContent = ''; msg.className = 'pmsg';
+  if (p.human) {
+    lbl.textContent = P.local ? `${p.name}, your turn!` : 'Your turn: name one!'; lbl.className = 'turn-lbl mine';
+    inp.disabled = false; inp.value = ''; inp.placeholder = P.cat.prompt + '…'; inp.focus();
+    $('#pForm .go').disabled = false;
+  } else {
+    lbl.textContent = `${p.name} is thinking…`; lbl.className = 'turn-lbl';
+    inp.disabled = true; inp.value = ''; inp.placeholder = `${p.name} is thinking…`; $('#pForm .go').disabled = true;
+    const L = BOT_LEVELS[p.bot];
+    const usedFrac = P.used.size / P.cat.valid.length;
+    const failP = L.fail + usedFrac * .55 + (P.turnTime <= 4 ? .06 : 0);
+    const think = rand(L.think[0], L.think[1]) * (1 + usedFrac * .8) * (P.turnTime < 6 ? .8 : 1);
+    P.plan = { t: 0, think, fail: Math.random() < failP, item: botPick(P.cat, P.used, p.bot), tries: 0 };
+    bubble(p, '…');
+  }
+}
+function partyTick(dt) {
+  if (P.phase !== 'turn') return;
+  P.timeLeft -= dt;
+  const f = Math.max(0, P.timeLeft / P.turnTime);
+  $('#clockFg').style.strokeDashoffset = 628.3 * (1 - f);
+  $('#clockFg').style.stroke = f > .4 ? '#4fe3c1' : f > .15 ? '#ffb020' : '#ff5a5a';
+  const stage = f > .7 ? 0 : f > .4 ? 1 : f > .15 ? 2 : 3;
+  const pf = $('#puffer');
+  pf.className = 'puffer s' + stage;
+  pf.querySelector('svg').style.transform = `scale(${0.82 + (1 - f) * .62})`;
+  P.tickAcc += dt;
+  const iv = [.6, .42, .26, .13][stage];
+  if (P.tickAcc >= iv) { P.tickAcc = 0; Sound.tick(stage >= 2); }
+  const p = P.players[P.cur];
+  if (!p.human && P.plan) botStep(p, dt);
+  if (P.timeLeft <= 0) pop();
+}
+function botStep(p, dt) {
+  const pl = P.plan; pl.t += dt;
+  const typeStart = pl.think * .55;
+  if (pl.t > typeStart && pl.t < pl.think) {
+    const word = pl.fail ? (pl.flub || (pl.flub = BOT_FLUBS[Math.floor(Math.random() * BOT_FLUBS.length)])) : (pl.item ? pl.item.name : '');
+    const k = Math.ceil(word.length * Math.min(1, (pl.t - typeStart) / (pl.think - typeStart)));
+    bubble(p, word.slice(0, k) || '…');
+  }
+  if (pl.t >= pl.think) {
+    if (!pl.fail && pl.item && !P.used.has(pl.item.idx)) { accept(p, pl.item); return; }
+    // stuck: show the flub, then maybe find something later
+    pl.tries++; bubble(p, pl.flub || '???', 'bad'); if (pl.tries === 1) Sound.bad();
+    pl.flub = null; pl.think = pl.t + rand(1.4, 3.2);
+    if (Math.random() < .35 / pl.tries) { pl.fail = false; pl.item = botPick(P.cat, P.used, p.bot); }
+  }
+}
+$('#pForm').addEventListener('submit', e => {
+  e.preventDefault(); if (!P || P.phase !== 'turn') return;
+  const p = P.players[P.cur]; if (!p.human) return;
+  const txt = $('#pInput').value.trim(); if (!txt) return;
+  const r = matchAnswer(P.cat, txt), msg = $('#pMsg');
+  const fail = t => { msg.textContent = t; msg.className = 'pmsg'; bump('#pForm'); Sound.bad(); bubble(p, txt, 'bad'); $('#pInput').select(); };
+  if (!r) return fail(`“${txt}” isn't on the list. Quick, try another!`);
+  if (r.item.trap) return fail(`Nice try, ${r.item.name} doesn't count!`);
+  if (P.used.has(r.item.idx)) return fail(`${r.item.name} was already said!`);
+  accept(p, r.item);
+});
+$('#pInput').addEventListener('input', () => { const p = P && P.players[P.cur]; if (p && p.human && P.phase === 'turn') bubble(p, $('#pInput').value); });
+function accept(p, item) {
+  P.used.add(item.idx); P.passes++; p.answers++;
+  const T = TIERS[item.tier];
+  if (!p.best || T.pts > TIERS[p.best.tier].pts) p.best = item;
+  p.meter += T.meter;
+  let bonus = false;
+  if (p.meter >= 100) { if (p.hearts < P.cap) { p.hearts++; bonus = true; p.meter -= 100; } else p.meter = 100; }
+  bubble(p, item.name, 'good');
+  Sound.good(item.tier);
+  const chip = el('span', null, esc(item.name)); chip.style.background = T.color; chip.title = T.name; $('#usedList').prepend(chip);
+  $('#pUsed').textContent = `${P.cat.valid.length} answers · ${P.used.size} said`;
+  const msg = $('#pMsg');
+  msg.className = 'pmsg ok';
+  msg.textContent = `${p.name}: ${item.name} · ${T.emoji} ${T.name}${bonus ? ' · ❤️ bonus heart!' : T.meter ? ` · meter +${T.meter}` : ''}`;
+  if (bonus || item.tier === 4) { const r = p.el.getBoundingClientRect(); Sea.burst(r.left + r.width / 2, r.top + 30, T.color, 24, .7); }
+  P.phase = 'pass'; P.plan = null;
+  $('#pInput').disabled = true;
+  P.cur = nextAlive(P.cur);
+  renderSeats(); pointAt(P.cur);
+  setTimeout(() => P && P.phase === 'pass' && beginTurn(), 380);
+}
+function pop() {
+  P.phase = 'freeze';
+  const p = P.players[P.cur];
+  p.hearts--; p.pops++;
+  if (p.hearts <= 0) { p.hearts = 0; p.out = true; }
+  const pf = $('#puffer'); pf.className = 'puffer popped';
+  const pt = $('#popTxt'); pt.textContent = 'POP!'; pt.classList.remove('on'); void pt.offsetWidth; pt.classList.add('on');
+  const r = $('#pufferWrap').getBoundingClientRect();
+  Sea.burst(r.left + r.width / 2, r.top + r.height / 2, '#ffb020', 40, 1.2); Sea.burst(r.left + r.width / 2, r.top + r.height / 2, '#ff5a3a', 20, .8);
+  Sound.pop(); flash();
+  p.el.classList.remove('hit'); void p.el.offsetWidth; p.el.classList.add('hit');
+  bubble(p, p.out ? 'I’m out! 💀' : 'ouch!', 'bad');
+  $('#pInput').disabled = true; $('#pForm .go').disabled = true;
+  const lbl = $('#turnLbl'); lbl.className = 'turn-lbl'; lbl.textContent = p.out ? `${p.name} is out!` : `${p.name} loses a heart!`;
+  $('#pMsg').textContent = ''; renderSeats();
+  setTimeout(() => {
+    if (!P) return;
+    pf.className = 'puffer sleep'; pf.querySelector('svg').style.transform = 'scale(.82)';
+    $('#clockFg').style.strokeDashoffset = 0;
+    if (alive().length <= 1) return partyOver();
+    if (p.out) P.cur = nextAlive(P.cur);
+    newCategory();
+    renderSeats(); pointAt(P.cur);
+    setTimeout(() => P && beginTurn(), 900);
+  }, 1700);
+}
+function partyOver() {
+  P.phase = 'over'; renderSeats();
+  const w = alive()[0] || P.players[0];
+  const youWon = w.human && !P.local;
+  if (youWon) store.patch(v => v.partyWins = (v.partyWins || 0) + 1);
+  Sound.win();
+  const rows = P.players.slice().sort((a, b) => b.hearts - a.hearts || b.answers - a.answers).map(p => `<div class="trow"><span class="tchip" style="background:${p.color};color:#fff">${esc(p.name)}${p === w ? ' 👑' : ''}</span><div><b>${p.answers} answer${p.answers === 1 ? '' : 's'}</b>${p.best ? ` · best: ${esc(p.best.name)} (${TIERS[p.best.tier].name})` : ''}<br><small>${p.out ? 'Popped out' : 'Still floating with ' + '❤️'.repeat(p.hearts)}</small></div></div>`).join('');
+  modal(`<div style="text-align:center"><div class="winner-av" style="background:${w.color}">${esc(w.name[0].toUpperCase())}</div><h3>${esc(w.name)} ${w.human && !P.local ? '(you!) ' : ''}is the last one floating!</h3></div>${rows}
+    <div class="res-btns"><button class="cta" id="pAgain">Play again</button><button class="cta ghost" id="pSetup">Change setup</button></div><button class="link" id="pHome">Back to home</button>`, c => {
+    c.querySelector('#pAgain').onclick = () => { closeModal(); endParty(); startParty(); };
+    c.querySelector('#pSetup').onclick = () => { closeModal(); endParty(); openSetup(); };
+    c.querySelector('#pHome').onclick = () => { closeModal(); endParty(); renderHome(); };
+  });
+}
+function endParty() { if (P) cancelAnimationFrame(P.raf); P = null; }
+$('#partyBack').onclick = () => {
+  if (!P || P.phase === 'over') { endParty(); return renderHome(); }
+  const was = P.phase; P.phase = 'paused';
+  modal(`<h3>Leave the party?</h3><p>The puffer will keep everyone's hearts where they are… just kidding, the game ends.</p><div class="res-btns"><button class="cta ghost" id="stay">Keep playing</button><button class="cta" id="leave">Leave</button></div>`, c => {
+    c.querySelector('#stay').onclick = () => { closeModal(); if (P) P.phase = was; };
+    c.querySelector('#leave').onclick = () => { closeModal(); endParty(); renderHome(); };
+  });
+};
+const syncMute = () => { $('#muteBtn').textContent = Sound.muted ? '🔇' : '🔊'; };
+$('#muteBtn').onclick = () => { Sound.muted = !Sound.muted; store.patch(v => v.muted = Sound.muted); syncMute(); };
+syncMute();
+
+// test hook
+window.__rr = { BANK, get D() { return D; }, get P() { return P; }, matchAnswer, startDive, startParty, cfg };
+renderHome();
+})();
+</script>
+</body>
+</html>

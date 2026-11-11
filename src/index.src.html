@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rare Reef</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>/*CSS*/</style>
+</head>
+<body>
+<canvas id="sea"></canvas>
+<div id="flash"></div>
+
+<!-- ============ HOME ============ -->
+<section class="screen" id="home">
+  <div class="home-wrap">
+    <div class="logo">
+      <svg class="logo-fish" viewBox="0 0 160 110" aria-hidden="true"><use href="#fish3d"/></svg>
+      <h1>Rare<span>Reef</span></h1>
+    </div>
+    <p class="tag">Name the answer nobody else thinks of. The rarer it is, the deeper you dive.</p>
+
+    <div class="mode-grid">
+      <button class="mode-card dive" id="goDive">
+        <div class="mode-ico"><svg viewBox="0 0 100 80"><use href="#sub3d"/></svg></div>
+        <div class="mode-txt"><b>Dive</b><span>7 prompts · 25 s each · rare answers sink you deeper</span></div>
+        <div class="mode-badge">Unlimited</div>
+      </button>
+      <button class="mode-card endless" id="goEndless">
+        <div class="mode-ico"><svg viewBox="0 0 100 100"><use href="#bubbles3d"/></svg></div>
+        <div class="mode-txt"><b>Endless Dive</b><span>Keep going until you run out of air (3 misses)</span></div>
+        <div class="mode-badge">No limit</div>
+      </button>
+      <button class="mode-card partyc" id="goParty">
+        <div class="mode-ico"><svg viewBox="0 0 200 200"><use href="#pufferBig"/></svg></div>
+        <div class="mode-txt"><b>Puffer Panic</b><span>Pass the puffer before it pops · 2–8 players</span></div>
+        <div class="mode-badge hot">Party</div>
+      </button>
+    </div>
+
+    <div class="packs" id="packs"></div>
+
+    <div class="stats" id="stats"></div>
+    <div class="tiers-legend" id="legend"></div>
+    <button class="link" id="howBtn">How scoring works</button>
+  </div>
+</section>
+
+<!-- ============ DIVE ============ -->
+<section class="screen" id="dive">
+  <div class="gauge" id="gauge"><div class="gauge-track" id="gaugeTrack"></div><div class="gauge-sub" id="gaugeSub"><svg viewBox="0 0 100 80"><use href="#sub3d"/></svg></div></div>
+  <div class="dive-wrap">
+    <div class="topbar">
+      <button class="icon-btn" id="diveBack" aria-label="Back">←</button>
+      <div class="round" id="roundLbl">1 / 7</div>
+      <div class="depth" id="depthLbl">0 m</div>
+    </div>
+    <div class="lives" id="lives"></div>
+    <div class="prompt-card" id="promptCard">
+      <div class="chip" id="packChip">Geography</div>
+      <div class="prompt" id="promptTxt">Name a country</div>
+      <div class="timer"><div class="timer-fill" id="timerFill"></div><span id="timerTxt">25</span></div>
+      <form id="answerForm" autocomplete="off">
+        <input id="answer" type="text" placeholder="Type a rare answer…" maxlength="60" autocapitalize="off" spellcheck="false">
+        <button class="go" type="submit">Dive ↓</button>
+      </form>
+      <div class="msg" id="msg"></div>
+      <button class="link small" id="passBtn">Pass</button>
+    </div>
+    <div class="reveal" id="reveal"></div>
+  </div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section class="screen" id="results">
+  <div class="res-wrap" id="resWrap"></div>
+</section>
+
+<!-- ============ PARTY SETUP ============ -->
+<section class="screen" id="setup">
+  <div class="setup-wrap">
+    <div class="topbar"><button class="icon-btn" id="setupBack" aria-label="Back">←</button><div class="round">Puffer Panic</div><div></div></div>
+    <div class="setup-hero"><svg viewBox="0 0 200 200" class="hero-puffer"><use href="#pufferBig"/></svg>
+      <div><h2>Pass the puffer.</h2><p>Name an answer that fits the category to pass it on. No repeats. If it pops while you hold it, you lose a heart. Rare answers fill your meter for a bonus heart. Last one floating wins.</p></div></div>
+    <div class="seg big" id="pmode"><button data-v="bots" class="on">vs Bots</button><button data-v="local">Pass &amp; Play</button></div>
+    <div id="botsCfg">
+      <label class="fld">Your name<input id="youName" maxlength="14" placeholder="You"></label>
+      <div class="row2"><span>Bots</span><div class="seg" id="botCount"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3" class="on">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="7">7</button></div></div>
+      <div class="row2"><span>Bot level</span><div class="seg" id="botLevel"><button data-v="easy">Easy</button><button data-v="normal" class="on">Normal</button><button data-v="hard">Hard</button></div></div>
+    </div>
+    <div id="localCfg" hidden>
+      <div class="plist" id="plist"></div>
+      <button class="link" id="addP">+ Add player</button>
+    </div>
+    <div class="row2"><span>Hearts</span><div class="seg" id="lifeSeg"><button data-v="1">1</button><button data-v="2" class="on">2</button><button data-v="3">3</button><button data-v="5">5</button></div></div>
+    <div class="row2"><span>Speed</span><div class="seg" id="speedSeg"><button data-v="chill">Chill</button><button data-v="normal" class="on">Normal</button><button data-v="frantic">Frantic</button></div></div>
+    <button class="cta" id="wake">🐡 Wake the puffer</button>
+  </div>
+</section>
+
+<!-- ============ PARTY ============ -->
+<section class="screen" id="party">
+  <div class="party-top">
+    <button class="icon-btn" id="partyBack" aria-label="Leave">←</button>
+    <div class="cat-banner"><div class="chip" id="pPack">Food</div><div class="cat-q" id="pPrompt">Name a fruit</div><div class="cat-used" id="pUsed">0 said</div></div>
+    <button class="icon-btn" id="muteBtn" aria-label="Sound">🔊</button>
+  </div>
+  <div class="arena" id="arena">
+    <div class="ring" id="ring"></div>
+    <div class="puffer-wrap" id="pufferWrap">
+      <svg class="clock" viewBox="0 0 220 220"><circle cx="110" cy="110" r="100" class="clock-bg"/><circle cx="110" cy="110" r="100" class="clock-fg" id="clockFg"/></svg>
+      <div class="puffer" id="puffer"><svg viewBox="0 0 200 200"><use href="#pufferBig"/></svg></div>
+      <div class="pointer" id="pointer"></div>
+      <div class="pop-txt" id="popTxt">POP!</div>
+    </div>
+  </div>
+  <div class="party-bottom">
+    <div class="turn-lbl" id="turnLbl">Your turn</div>
+    <form id="pForm" autocomplete="off"><input id="pInput" maxlength="60" placeholder="Name one…" autocapitalize="off" spellcheck="false"><button class="go" type="submit">Pass →</button></form>
+    <div class="pmsg" id="pMsg"></div>
+    <div class="used" id="usedList"></div>
+  </div>
+</section>
+
+<!-- ============ MODAL ============ -->
+<div class="modal" id="modal" hidden><div class="modal-card" id="modalCard"></div></div>
+
+<!-- ============ SVG SYMBOLS ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- shared 3D lighting for the puffer (colour comes from CSS vars on the body underneath) -->
+    <radialGradient id="pfShade" cx=".36" cy=".3" r=".78"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".28" stop-color="#fff" stop-opacity=".08"/><stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#3a0d00" stop-opacity=".42"/></radialGradient>
+    <radialGradient id="pfSpec" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glassEye" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#fff"/><stop offset=".65" stop-color="#eef6ff"/><stop offset="1" stop-color="#9bb2c8"/></radialGradient>
+    <radialGradient id="irisDeep" cx=".42" cy=".38" r=".62"><stop offset="0" stop-color="#3d6590"/><stop offset=".6" stop-color="#0d1f36"/><stop offset="1" stop-color="#02060d"/></radialGradient>
+    <linearGradient id="spineShade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity=".25"/></linearGradient>
+    <filter id="softBlur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="softBlur2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.4"/></filter>
+
+    <!-- realistic glossy fish logo -->
+    <linearGradient id="f3body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9fdff"/><stop offset=".3" stop-color="#43d0f6"/><stop offset=".72" stop-color="#157bd8"/><stop offset="1" stop-color="#0a3a86"/></linearGradient>
+    <linearGradient id="f3tail" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8af5ff"/><stop offset=".5" stop-color="#2a9fe8"/><stop offset="1" stop-color="#0b3d92"/></linearGradient>
+    <linearGradient id="f3fin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffef9a"/><stop offset=".55" stop-color="#ffb43d"/><stop offset="1" stop-color="#e46a12"/></linearGradient>
+    <radialGradient id="f3spec" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <clipPath id="f3clip"><path d="M12 56 C28 21 80 13 113 36 C121 41 124 48 124 55 C124 62 121 68 113 73 C80 96 28 90 12 56Z"/></clipPath>
+    <symbol id="fish3d" viewBox="0 0 160 110">
+      <ellipse cx="74" cy="101" rx="54" ry="5.5" fill="#00142b" opacity=".45" filter="url(#softBlur)"/>
+      <path d="M116 55 C130 40 140 28 153 18 C150 36 148 46 150 55 C148 64 150 74 153 92 C140 82 130 70 116 55Z" fill="url(#f3tail)"/>
+      <path d="M126 52 L150 26 M127 55 L150 55 M126 58 L150 84" stroke="#fff" stroke-opacity=".28" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M48 27 C58 4 92 2 108 32 C88 24 66 22 48 27Z" fill="url(#f3fin)"/>
+      <path d="M58 22 C66 12 82 10 96 20" stroke="#fff" stroke-opacity=".5" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M60 84 C68 98 86 100 96 88 C84 88 72 87 60 84Z" fill="url(#f3fin)"/>
+      <path d="M12 56 C28 21 80 13 113 36 C121 41 124 48 124 55 C124 62 121 68 113 73 C80 96 28 90 12 56Z" fill="url(#f3body)"/>
+      <g clip-path="url(#f3clip)">
+        <g fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="1.2">
+          <path d="M60 30 q6 8 0 16 q6 8 0 16 q6 8 0 16"/><path d="M72 28 q6 8 0 16 q6 8 0 16 q6 8 0 16"/><path d="M84 30 q6 8 0 16 q6 8 0 16 q6 8 0 16"/><path d="M96 34 q6 8 0 16 q6 8 0 16"/>
+        </g>
+        <path d="M58 22 C52 40 54 70 62 92 L74 92 C66 70 64 42 70 20Z" fill="#ff9a3d" opacity=".92"/>
+        <path d="M58 22 C52 40 54 70 62 92 L64 92 C57 70 56 42 61 21Z" fill="#fff" opacity=".85"/>
+        <path d="M70 20 C64 42 66 70 74 92 L76 92 C68 70 67 42 73 20Z" fill="#fff" opacity=".85"/>
+        <ellipse cx="66" cy="84" rx="56" ry="13" fill="#fff" opacity=".22"/>
+        <ellipse cx="70" cy="96" rx="70" ry="14" fill="#021a44" opacity=".45" filter="url(#softBlur)"/>
+        <ellipse cx="56" cy="34" rx="40" ry="10" fill="url(#f3spec)" opacity=".85" transform="rotate(-10 56 34)"/>
+      </g>
+      <path d="M20 46 C36 26 78 20 108 36" stroke="#fff" stroke-opacity=".65" stroke-width="1.6" fill="none" stroke-linecap="round" filter="url(#softBlur2)"/>
+      <path d="M44 44 C40 52 40 62 46 70" stroke="#0a3a86" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M78 58 C88 54 100 58 104 68 C94 70 84 68 78 58Z" fill="url(#f3fin)" opacity=".95"/>
+      <circle cx="33" cy="49" r="10.5" fill="url(#glassEye)"/>
+      <circle cx="31.5" cy="50" r="6.6" fill="url(#irisDeep)"/>
+      <circle cx="31" cy="50.5" r="3.4" fill="#000"/>
+      <circle cx="29" cy="47" r="2.3" fill="#fff"/><circle cx="34" cy="53" r="1" fill="#fff" opacity=".8"/>
+      <path d="M13 60 C17 62 20 62 23 60" stroke="#0a3a86" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- glossy yellow submarine -->
+    <linearGradient id="subHull" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6b8"/><stop offset=".28" stop-color="#ffd84a"/><stop offset=".7" stop-color="#f29a14"/><stop offset="1" stop-color="#a65800"/></linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#b9c6d2"/><stop offset=".55" stop-color="#7f8e9c"/><stop offset="1" stop-color="#dfe7ee"/></linearGradient>
+    <radialGradient id="porthole" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#c8f6ff"/><stop offset=".5" stop-color="#2aa7e8"/><stop offset="1" stop-color="#06305e"/></radialGradient>
+    <symbol id="sub3d" viewBox="0 0 100 80">
+      <ellipse cx="50" cy="73" rx="34" ry="3.5" fill="#001426" opacity=".45" filter="url(#softBlur2)"/>
+      <rect x="54" y="8" width="5" height="16" rx="2.5" fill="url(#metal)"/><rect x="54" y="6" width="13" height="5" rx="2.5" fill="url(#metal)"/>
+      <path d="M36 32 C36 22 40 18 50 18 L60 18 C68 18 70 24 70 32Z" fill="url(#subHull)"/>
+      <path d="M40 22 C44 19 56 19 64 21" stroke="#fff" stroke-opacity=".7" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M86 46 L96 36 L96 60 Z" fill="url(#metal)"/>
+      <ellipse cx="84" cy="48" rx="3" ry="9" fill="url(#metal)"/>
+      <rect x="6" y="28" width="82" height="40" rx="20" fill="url(#subHull)"/>
+      <ellipse cx="40" cy="36" rx="30" ry="6" fill="url(#f3spec)" opacity=".8"/>
+      <rect x="6" y="56" width="82" height="12" rx="6" fill="#7a3d00" opacity=".25" filter="url(#softBlur2)"/>
+      <g><circle cx="26" cy="47" r="8.5" fill="url(#metal)"/><circle cx="26" cy="47" r="6" fill="url(#porthole)"/><ellipse cx="23.8" cy="44.6" rx="2.4" ry="1.6" fill="#fff" opacity=".9"/></g>
+      <g><circle cx="47" cy="47" r="8.5" fill="url(#metal)"/><circle cx="47" cy="47" r="6" fill="url(#porthole)"/><ellipse cx="44.8" cy="44.6" rx="2.4" ry="1.6" fill="#fff" opacity=".9"/></g>
+      <g><circle cx="68" cy="47" r="8.5" fill="url(#metal)"/><circle cx="68" cy="47" r="6" fill="url(#porthole)"/><ellipse cx="65.8" cy="44.6" rx="2.4" ry="1.6" fill="#fff" opacity=".9"/></g>
+      <g fill="#a65800" opacity=".55"><circle cx="12" cy="40" r="1.2"/><circle cx="12" cy="56" r="1.2"/><circle cx="80" cy="38" r="1.2"/><circle cx="80" cy="58" r="1.2"/></g>
+    </symbol>
+
+    <!-- glass bubbles -->
+    <radialGradient id="bub" cx=".5" cy=".55" r=".55"><stop offset="0" stop-color="#e9fffb" stop-opacity=".08"/><stop offset=".7" stop-color="#9ff3ff" stop-opacity=".28"/><stop offset=".92" stop-color="#e6ffff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity=".95"/></radialGradient>
+    <symbol id="bubbles3d" viewBox="0 0 100 100">
+      <g><circle cx="40" cy="58" r="28" fill="url(#bub)"/><ellipse cx="30" cy="44" rx="10" ry="6" fill="#fff" opacity=".85" transform="rotate(-35 30 44)"/><path d="M52 78 A22 22 0 0 0 63 63" stroke="#fff" stroke-width="2" stroke-opacity=".6" fill="none" stroke-linecap="round"/><ellipse cx="44" cy="72" rx="14" ry="5" fill="#bff7ff" opacity=".25"/></g>
+      <g><circle cx="74" cy="34" r="17" fill="url(#bub)"/><ellipse cx="68" cy="26" rx="6" ry="3.6" fill="#fff" opacity=".85" transform="rotate(-35 68 26)"/><path d="M82 46 A13 13 0 0 0 88 37" stroke="#fff" stroke-width="1.6" stroke-opacity=".6" fill="none" stroke-linecap="round"/></g>
+      <g><circle cx="78" cy="76" r="10" fill="url(#bub)"/><ellipse cx="74.5" cy="71.5" rx="3.6" ry="2.2" fill="#fff" opacity=".85" transform="rotate(-35 74.5 71.5)"/></g>
+      <g><circle cx="26" cy="20" r="7" fill="url(#bub)"/><ellipse cx="23.5" cy="17" rx="2.4" ry="1.5" fill="#fff" opacity=".85" transform="rotate(-35 23.5 17)"/></g>
+    </symbol>
+
+        <symbol id="pufferBig" viewBox="0 0 200 200">
+      <g class="spines" style="fill:var(--spine,#e08a12)" stroke="rgba(60,20,0,.25)" stroke-width="1" stroke-linejoin="round">
+        <path d="M100 18 L108 46 L92 46Z"/><path d="M100 182 L92 154 L108 154Z"/><path d="M18 100 L46 92 L46 108Z"/><path d="M182 100 L154 108 L154 92Z"/>
+        <path d="M42 42 L66 58 L58 66Z"/><path d="M158 158 L134 142 L142 134Z"/><path d="M158 42 L142 66 L134 58Z"/><path d="M42 158 L58 134 L66 142Z"/>
+        <path d="M68 24 L82 50 L68 54Z"/><path d="M132 24 L132 54 L118 50Z"/><path d="M24 68 L54 68 L50 82Z"/><path d="M24 132 L50 118 L54 132Z"/>
+        <path d="M176 68 L150 82 L146 68Z"/><path d="M176 132 L146 132 L150 118Z"/><path d="M68 176 L68 146 L82 150Z"/><path d="M132 176 L118 150 L132 146Z"/>
+      </g>
+      <path d="M150 100 L186 76 L180 100 L186 124Z" style="fill:var(--pf2,#ffb52e)"/>
+      <ellipse cx="104" cy="168" rx="50" ry="7" fill="#001a2e" opacity=".35" filter="url(#softBlur)"/><circle cx="100" cy="100" r="58" style="fill:var(--pf1,#ffd25e)"/>
+      <ellipse cx="100" cy="130" rx="42" ry="22" fill="#fff6d6" opacity=".7"/><circle cx="100" cy="100" r="58" fill="url(#pfShade)"/><ellipse cx="80" cy="66" rx="22" ry="12" fill="url(#pfSpec)" transform="rotate(-30 80 66)"/><path d="M58 76 A50 50 0 0 1 96 46" stroke="#fff" stroke-opacity=".55" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#softBlur2)"/>
+      <g fill="#c96d00" opacity=".45"><circle cx="78" cy="70" r="4"/><circle cx="96" cy="62" r="3.5"/><circle cx="114" cy="68" r="4"/><circle cx="128" cy="80" r="3"/><circle cx="70" cy="88" r="3"/></g>
+      <ellipse cx="112" cy="104" rx="16" ry="11" style="fill:var(--pf2,#ffb52e)" transform="rotate(-20 112 104)" class="fin"/>
+      <circle cx="74" cy="92" r="13" fill="url(#glassEye)"/><circle cx="76" cy="93" r="7.5" fill="url(#irisDeep)" class="pupil"/><circle cx="79" cy="90" r="2.6" fill="#fff"/>
+      <circle cx="104" cy="88" r="11" fill="url(#glassEye)"/><circle cx="106" cy="89" r="6.5" fill="url(#irisDeep)" class="pupil"/><circle cx="108.5" cy="86.5" r="2.2" fill="#fff"/>
+      <ellipse cx="60" cy="112" rx="7" ry="6" fill="#e2563b" class="mouth"/>
+      <ellipse cx="66" cy="104" rx="7" ry="3.5" fill="#ff8a7a" opacity=".55"/>
+    </symbol>
+    <symbol id="pufferMini" viewBox="0 0 64 64"><circle cx="32" cy="33" r="20" fill="#ffc94a"/><g fill="#e08a12"><path d="M32 6l3 9h-6z"/><path d="M32 60l-3-9h6z"/><path d="M6 33l9-3v6z"/><path d="M14 14l8 5-3 3z"/><path d="M50 52l-8-5 3-3z"/><path d="M14 52l5-8 3 3z"/></g><path d="M50 33l10-8-2 8 2 8z" fill="#ffb52e"/><circle cx="26" cy="29" r="5" fill="#fff"/><circle cx="27" cy="29.5" r="3" fill="#102033"/><circle cx="21" cy="39" r="3" fill="#e2563b"/></symbol>
+  </defs>
+</svg>
+
+<script>/*BANK*/</script>
+<script>/*ENGINE*/</script>
+<script>/*GAME*/</script>
+</body>
+</html>
